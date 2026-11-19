@@ -1,0 +1,178 @@
+{% extends "base_app.html" %}
+
+{% block title %}Rewards &amp; Badges | FitTrack{% endblock %}
+{% block topbar_title %}Rewards &amp; Badges{% endblock %}
+{% block topbar_subtitle %}Level {{ achievements_summary.adventurer_level }} &middot; {{ achievements_summary.total_xp }} XP &middot; {{ achievements_summary.unlocked_count }} of {{ achievements_summary.total_count }} achievements unlocked{% endblock %}
+
+{% block content %}
+<!-- Adventurer Level & XP Hero -->
+<section class="adventure-hero p-4 p-lg-5 mb-4">
+  <div class="row g-4 align-items-center position-relative" style="z-index: 2;">
+    <div class="col-lg-8">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="p-2 surface-inset">
+          {% include "partials/fitbuddy_svg.html" with buddy_gender=profile.companion_choice buddy_state="celebration" buddy_size="68px" %}
+        </div>
+        <div>
+          <div class="small fw-bold text-lime tabular-num text-uppercase">
+            Reward Collection &middot; {{ streak_info.current_streak }} day streak
+          </div>
+          <h1 class="display-6 fw-bold text-ink-bright mb-0">
+            Level <span class="tabular-num">{{ achievements_summary.adventurer_level }}</span> Adventurer
+          </h1>
+        </div>
+      </div>
+      <p class="text-ink-muted mb-3">
+        Every saved workout, filled Reward Jar, and Daily Challenge earns real XP and unlocks permanent milestones in your FitTrack collection.
+      </p>
+      <div class="p-3 surface-inset">
+        <div class="d-flex justify-content-between align-items-center small mb-2">
+          <span class="fw-semibold text-ink-bright">Progress to Level {{ achievements_summary.adventurer_level|add:1 }}</span>
+          <span class="tabular-num fw-bold text-lime">{{ achievements_summary.xp_into_level }} / 150 XP</span>
+        </div>
+        <div class="progress-track" style="height: 11px;">
+          <div class="progress-fill h-100 completed" style="width: {{ achievements_summary.xp_percent }}%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="race-bib-card race-bib-card-straight">
+        <span class="bib-pin bib-pin-tl" aria-hidden="true"></span>
+        <span class="bib-pin bib-pin-tr" aria-hidden="true"></span>
+        <span class="bib-pin bib-pin-bl" aria-hidden="true"></span>
+        <span class="bib-pin bib-pin-br" aria-hidden="true"></span>
+        <div class="race-bib-header py-2">
+          <div class="race-bib-brand" style="font-size: 1.05rem;">TROPHY BIB</div>
+          <div class="race-bib-sub">LEVEL {{ achievements_summary.adventurer_level }} &middot; OFFICIAL RECORD</div>
+        </div>
+        <div class="race-bib-body">
+          <div class="row g-2 text-center">
+            <div class="col-6 border-end border-dark border-opacity-25">
+              <div class="h2 fw-bold tabular-num mb-0" style="color: #111513;" data-countup="{{ achievements_summary.total_xp }}">{{ achievements_summary.total_xp }}</div>
+              <div class="race-bib-caption" style="font-size: 0.62rem;">TOTAL XP</div>
+            </div>
+            <div class="col-6">
+              <div class="h2 fw-bold tabular-num mb-0" style="color: #111513;" data-countup="{{ achievements_summary.unlocked_count }}">{{ achievements_summary.unlocked_count }}</div>
+              <div class="race-bib-caption" style="font-size: 0.62rem;">BADGES</div>
+            </div>
+          </div>
+          <div class="race-bib-footer mt-2 pt-2">
+            <span>JARS FILLED: {{ earned_goal_rewards|length }}</span>
+            <span>BEST: {{ streak_info.best_streak }}D</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Achievements Grid -->
+<section class="mb-4">
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 mb-3">
+    <div>
+      <h2 class="h4 fw-bold mb-1">Achievement Badges</h2>
+      <p class="small text-secondary mb-0">
+        Unlocked badges stay permanently in your trophy shelf; locked badges track live progress from your database records.
+      </p>
+    </div>
+    <a href="{% url 'fitness:workouts' %}#log-workout-form" class="btn btn-emerald btn-sm text-nowrap">
+      <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Log Workout for XP
+    </a>
+  </div>
+
+  <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3">
+    {% for item in achievements_summary.items %}
+    <div class="col">
+      <article class="p-4 h-100 d-flex flex-column justify-content-between surface-card-hover {% if item.is_unlocked %}surface-tint-mint{% else %}surface-card{% endif %}">
+        <div>
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+            <span class="{% if item.is_unlocked %}icon-tile{% else %}icon-tile-locked{% endif %}" aria-hidden="true">
+              <i class="bi {{ item.achievement.icon_name }}"></i>
+            </span>
+            <span class="small fw-bold tabular-num {% if item.is_unlocked %}text-lime{% else %}text-ink-muted{% endif %}">
+              +{{ item.achievement.reward_xp }} XP
+            </span>
+          </div>
+          <h3 class="h5 fw-bold mb-1 text-ink-bright">{{ item.achievement.title }}</h3>
+          <p class="small text-ink-muted mb-3">{{ item.achievement.description }}</p>
+        </div>
+
+        <div>
+          <div class="d-flex justify-content-between align-items-center small mb-1">
+            {% if item.is_unlocked %}
+            <span class="fw-bold text-lime">
+              <i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i>Unlocked
+            </span>
+            <span class="text-ink-muted tabular-num">{{ item.unlocked_at|date:"M d, Y" }}</span>
+            {% else %}
+            <span class="fw-semibold text-ink-muted">Progress</span>
+            <span class="tabular-num fw-bold text-ink-bright">{{ item.current_value }} / {{ item.target_value }}</span>
+            {% endif %}
+          </div>
+          <div class="progress-track" style="height: 8px;">
+            <div class="progress-fill h-100 {% if item.is_unlocked %}completed{% endif %}" style="width: {{ item.progress_percent }}%;"></div>
+          </div>
+        </div>
+      </article>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Completed Goal Reward Jars -->
+<section class="surface-card p-4">
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+    <div>
+      <h2 class="h5 fw-bold mb-0">Earned Goal Reward Jars</h2>
+      <p class="small text-secondary mb-0">Reward containers you filled by completing your personal targets</p>
+    </div>
+    <a href="{% url 'fitness:goals' %}" class="btn btn-outline-navy btn-sm">Manage Goal Jars</a>
+  </div>
+
+  {% if earned_goal_rewards %}
+  <div class="row g-3">
+    {% for item in earned_goal_rewards %}
+    <div class="col-md-6 col-xl-4">
+      <div class="p-3 rounded-4 border surface-tint-lavender h-100 d-flex align-items-center gap-3">
+        <div class="flex-shrink-0" style="width: 112px;">
+          {% include "partials/reward_jar_svg.html" with container_type=item.goal.reward_container progress_percent=100 theme_color=item.goal.theme_color jar_id=item.goal.pk size="md" %}
+        </div>
+        <div class="min-w-0">
+          <div class="small fw-bold text-lime">{{ item.goal.reward_badge_title }}</div>
+          <h3 class="h6 fw-bold mb-1 text-truncate">{{ item.goal.title }}</h3>
+          <div class="small text-secondary tabular-num mb-1">
+            {% if item.is_completed %}
+              {{ item.completed_value }} / {{ item.target_value }} {{ item.unit_label }} ({{ item.period_label }})
+            {% elif item.goal.celebrated_at %}
+              Target {{ item.target_value }} {{ item.unit_label }} &middot; Earned {{ item.goal.celebrated_at|date:"M d, Y" }}
+            {% else %}
+              {{ item.completed_value }} / {{ item.target_value }} {{ item.unit_label }}
+            {% endif %}
+          </div>
+          {% if item.activity_breakdown %}
+          <div class="d-flex flex-wrap gap-1 mb-1">
+            {% for act in item.activity_breakdown|slice:":2" %}
+            <span class="jar-activity-chip jar-activity-chip-compact">
+              <span class="jar-activity-name">{{ act.activity_name }}</span>
+              <span class="jar-activity-time tabular-num">{{ act.total_minutes }}m</span>
+            </span>
+            {% endfor %}
+          </div>
+          {% endif %}
+          <div class="small text-success fw-semibold">
+            <i class="bi bi-stars me-1" aria-hidden="true"></i>{{ item.goal.get_reward_container_display }} Filled
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-4">
+    <p class="small text-secondary mb-3">Fill any Reward Jar on your Goals page to display your first completed trophy jar here!</p>
+    <a href="{% url 'fitness:goals' %}" class="btn btn-purple btn-sm">Open Reward Jars &amp; Goals</a>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

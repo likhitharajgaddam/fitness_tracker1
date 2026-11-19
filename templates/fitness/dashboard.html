@@ -1,0 +1,597 @@
+{% extends "base_app.html" %}
+{% load static %}
+
+{% block title %}Dashboard | FitTrack{% endblock %}
+{% block topbar_title %}Welcome back, {{ profile.display_name }}{% endblock %}
+{% block topbar_subtitle %}Level {{ achievements_summary.adventurer_level }} &middot; {{ profile.fitness_level }} &middot; {{ today|date:"l, M j, Y" }}{% endblock %}
+
+{% block content %}
+{% if not profile.profile_completed %}
+<div class="surface-tint-lavender p-3 mb-4 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+  <div class="d-flex align-items-center gap-2">
+    <span class="icon-tile-purple" aria-hidden="true"><i class="bi bi-sliders"></i></span>
+    <div>
+      <div class="fw-bold small text-ink-bright">Choose your FitBuddy &amp; finish profile setup</div>
+      <div class="small text-ink-muted">Personalize your companion, level, and primary goal for tailored suggestions.</div>
+    </div>
+  </div>
+  <a href="{% url 'fitness:profile_setup' %}" class="btn btn-lime btn-sm text-nowrap">Complete Setup</a>
+</div>
+{% endif %}
+
+<!-- A. Live Interactive 3D Personal Track Arena + Athlete Race Bib & Reward Jar -->
+<section
+  id="dashboard3DTrackStage"
+  class="dashboard-3d-arena mb-4"
+  data-progress="{% if featured_goal and featured_goal.progress_percent >= 100 %}1.0{% elif featured_goal %}0.{{ featured_goal.progress_percent|stringformat:'02d' }}{% else %}0.22{% endif %}"
+  data-tour-id="fitness-world"
+>
+  <div class="track-3d-mount" data-webgl-mount></div>
+  <div class="track-3d-scrim" aria-hidden="true"></div>
+
+  <div class="position-relative p-4 p-lg-5" style="z-index: 4;">
+    <div class="row g-4 align-items-center">
+      <!-- Left: Athlete Race Bib + Streak + Quick Actions -->
+      <div class="col-lg-7">
+        <div class="row g-3 align-items-center mb-3">
+          <div class="col-sm-6">
+            <div class="race-bib-card">
+              <span class="bib-pin bib-pin-tl" aria-hidden="true"></span>
+              <span class="bib-pin bib-pin-tr" aria-hidden="true"></span>
+              <span class="bib-pin bib-pin-bl" aria-hidden="true"></span>
+              <span class="bib-pin bib-pin-br" aria-hidden="true"></span>
+              <div class="race-bib-header py-2">
+                <div class="race-bib-brand" style="font-size: 1.05rem;">{{ profile.display_name }}</div>
+                <div class="race-bib-sub">{{ profile.fitness_level }} &middot; LVL {{ achievements_summary.adventurer_level }}</div>
+              </div>
+              <div class="race-bib-body py-2 px-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="race-bib-wave">WAVE <strong>A</strong></span>
+                  <span class="tabular-num fw-bold" style="font-size: 0.72rem; color: #111513;">{{ achievements_summary.total_xp }} XP</span>
+                </div>
+                <div class="race-bib-number tabular-num" style="font-size: 2.75rem; margin: 0.15rem 0;">
+                  {{ total_minutes|stringformat:"04d" }}
+                </div>
+                <div class="race-bib-caption" style="font-size: 0.62rem;">TOTAL WORKOUT MINUTES</div>
+                <div class="race-bib-footer mt-2 pt-2">
+                  <span>{{ streak_info.current_streak }}D STREAK</span>
+                  <span>{{ today_minutes }}M TODAY</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-6">
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <div class="p-2 stage-inset-box">
+                {% include "partials/fitbuddy_svg.html" with buddy_gender=profile.companion_choice buddy_state=fitbuddy.state buddy_size="64px" %}
+              </div>
+              <div>
+                <div class="small fw-bold text-lime tabular-num text-uppercase">
+                  {{ profile.primary_goal }}
+                </div>
+                <h1 class="h2 fw-bold text-ink-bright mb-0">
+                  Ready to move, {{ profile.display_name }}?
+                </h1>
+              </div>
+            </div>
+            <p class="small text-ink-body mb-0">
+              {{ fitbuddy.message }} Today you've logged <strong class="text-lime tabular-num">{{ today_minutes }} min</strong>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Current Fitness Streak Strip -->
+        <div class="p-3 stage-inset-box mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small fw-bold text-ink-bright">
+              <i class="bi bi-fire text-track-red me-1" aria-hidden="true"></i>
+              Current Streak: <span class="tabular-num text-lime">{{ streak_info.current_streak }} day{{ streak_info.current_streak|pluralize }}</span>
+            </span>
+            <span class="small text-ink-muted tabular-num">Best: {{ streak_info.best_streak }} days</span>
+          </div>
+          <div class="d-flex justify-content-between gap-1">
+            {% for day in streak_info.recent_7_days %}
+            <div class="text-center flex-grow-1">
+              <div class="streak-day-node mx-auto {% if day.active %}active{% endif %}" title="{{ day.full_label }}">
+                {{ day.label }}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- E. Quick Actions + Live 3D Track Sprint Boost -->
+        <div class="d-flex flex-wrap gap-2">
+          <a href="{% url 'fitness:workouts' %}#log-workout-form" class="btn btn-lime">
+            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Start a Workout
+          </a>
+          <button type="button" id="dashboardSprintBoostBtn" class="btn btn-track-coral">
+            <i class="bi bi-lightning-charge-fill me-1" aria-hidden="true"></i>Sprint Lap
+          </button>
+          <a href="{% url 'fitness:activities' %}" class="btn btn-navy">
+            Explore Activities
+          </a>
+          <a href="{% url 'fitness:sports' %}" class="btn btn-outline-navy">
+            Discover Sports
+          </a>
+          <a href="{% url 'fitness:goals' %}" class="btn btn-outline-navy">
+            Create a Goal
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: Central Reward Jar Showcase -->
+      <div class="col-lg-5">
+        <div class="stage-jar-panel p-4">
+          {% if featured_goal %}
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+            <div>
+              <div class="meta-line">
+                <span class="meta-accent">My Fitness Reward Jar</span>
+                <span aria-hidden="true">&middot;</span>
+                <span>{{ featured_goal.goal.get_reward_container_display }}</span>
+              </div>
+              <h2 class="h4 fw-bold text-ink-bright mb-0">{{ featured_goal.goal.title }}</h2>
+            </div>
+            <a href="{% url 'fitness:goals' %}" class="btn btn-outline-navy btn-sm text-nowrap">All Jars</a>
+          </div>
+
+          <div class="row align-items-center g-3">
+            <div class="col-sm-5">
+              {% include "partials/reward_jar_svg.html" with container_type=featured_goal.goal.reward_container progress_percent=featured_goal.progress_percent theme_color=featured_goal.goal.theme_color jar_id="hero-jar" size="lg" %}
+            </div>
+            <div class="col-sm-7">
+              <div class="display-5 fw-bold tabular-num text-lime mb-1">
+                {{ featured_goal.raw_percent }}%
+              </div>
+              <div class="fw-semibold small text-ink-bright mb-2 tabular-num">
+                {{ featured_goal.completed_value }} / {{ featured_goal.target_value }} {{ featured_goal.unit_label }} completed
+              </div>
+              <div class="progress-track mb-2">
+                <div class="progress-fill h-100 {% if featured_goal.is_completed %}completed{% endif %}" style="width: {{ featured_goal.progress_percent }}%;"></div>
+              </div>
+              <p class="small text-ink-muted mb-2">
+                {% if featured_goal.is_completed %}
+                  Jar filled! Reward unlocked: <strong class="text-lime">{{ featured_goal.goal.reward_badge_title }}</strong>.
+                {% else %}
+                  <span class="tabular-num fw-bold text-ink-bright">{{ featured_goal.remaining_value }} {{ featured_goal.unit_label }}</span> remaining for {{ featured_goal.period_label }}.
+                {% endif %}
+              </p>
+              <div class="hero-jar-breakdown mb-2">
+                <div class="small fw-semibold text-ink-muted mb-1">
+                  <i class="bi bi-clock-history me-1 text-lime" aria-hidden="true"></i>What Filled This Jar
+                </div>
+                {% if featured_goal.activity_breakdown %}
+                <div class="d-flex flex-wrap gap-1">
+                  {% for act in featured_goal.activity_breakdown|slice:":4" %}
+                  <span class="jar-activity-chip jar-activity-chip-compact">
+                    <span class="jar-activity-name">{{ act.activity_name }}</span>
+                    <span class="jar-activity-time tabular-num">
+                      {% if featured_goal.goal.is_frequency_goal %}
+                        {{ act.session_count }}x &middot; {{ act.total_minutes }}m
+                      {% else %}
+                        {{ act.total_minutes }} min
+                      {% endif %}
+                    </span>
+                  </span>
+                  {% endfor %}
+                </div>
+                {% else %}
+                <div class="small text-ink-muted">No workouts logged for {{ featured_goal.period_label }} yet.</div>
+                {% endif %}
+              </div>
+              <div class="d-flex justify-content-between small border-top border-secondary border-opacity-25 pt-2">
+                <span class="text-ink-muted">This Week</span>
+                <strong class="tabular-num" style="color: var(--mint-500);">{{ weekly_minutes }} min logged</strong>
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <div class="text-center py-3">
+            {% include "partials/reward_jar_svg.html" with container_type="popcorn" progress_percent=25 theme_color="purple" jar_id="empty-jar" size="md" %}
+            <h2 class="h4 fw-bold text-ink-bright mt-3 mb-1">Choose Your First Reward Jar</h2>
+            <p class="small text-ink-muted mb-3">
+              Pick a Popcorn Bucket, Juice Glass, Flower Pot, Treasure Chest, or Fish Tank and watch it fill as you exercise!
+            </p>
+            <a href="{% url 'fitness:goals' %}" class="btn btn-lime btn-sm">Create Your First Goal</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- C. Interactive Statistics (Animated Counters) -->
+<section class="mb-4" aria-label="Interactive fitness statistics">
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-5 g-3">
+    <div class="col">
+      <div class="surface-card surface-card-hover p-3 p-lg-4 h-100">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="kpi-label">Total Workouts</span>
+          <span class="icon-tile-purple" aria-hidden="true"><i class="bi bi-journal-check"></i></span>
+        </div>
+        <div class="kpi-value tabular-num" data-countup="{{ total_workouts }}">{{ total_workouts }}</div>
+        <div class="meta-line mt-1"><span>All-time logged</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="surface-card surface-card-hover p-3 p-lg-4 h-100">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="kpi-label">Workout Minutes</span>
+          <span class="icon-tile" aria-hidden="true"><i class="bi bi-stopwatch"></i></span>
+        </div>
+        <div class="kpi-value tabular-num text-lime" data-countup="{{ total_minutes }}">{{ total_minutes }}</div>
+        <div class="meta-line mt-1"><span class="tabular-num">{{ weekly_minutes }} min</span><span>this week</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="surface-card surface-card-hover p-3 p-lg-4 h-100">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="kpi-label">Current Streak</span>
+          <span class="icon-tile-peach" aria-hidden="true"><i class="bi bi-fire"></i></span>
+        </div>
+        <div class="kpi-value tabular-num text-track-red" data-countup="{{ streak_info.current_streak }}">{{ streak_info.current_streak }}</div>
+        <div class="meta-line mt-1"><span>Consecutive days</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="surface-card surface-card-hover p-3 p-lg-4 h-100">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="kpi-label">Goals Completed</span>
+          <span class="icon-tile" aria-hidden="true"><i class="bi bi-trophy"></i></span>
+        </div>
+        <div class="kpi-value tabular-num" style="color: var(--mint-500);" data-countup="{{ goals_completed_count }}">{{ goals_completed_count }}</div>
+        <div class="meta-line mt-1"><span class="tabular-num">{{ active_goals_count }} active jars</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="surface-card surface-card-hover p-3 p-lg-4 h-100">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="kpi-label">Activities Explored</span>
+          <span class="icon-tile-sky" aria-hidden="true"><i class="bi bi-compass"></i></span>
+        </div>
+        <div class="kpi-value tabular-num" data-countup="{{ activities_completed }}">{{ activities_completed }}</div>
+        <div class="meta-line mt-1"><span>Unique exercises</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- D. Weekly Fitness Journey + F. Daily Challenge & Reward Jars -->
+<section class="row g-4 mb-4">
+  <div class="col-lg-7">
+    <div class="surface-card p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="h4 fw-bold mb-0">Weekly Fitness Journey</h2>
+          <p class="small text-ink-muted mb-0">Actual workout minutes per day ({{ week_range_label }})</p>
+        </div>
+        <a href="{% url 'fitness:analytics' %}" class="btn btn-outline-navy btn-sm">
+          My Fitness Journey
+        </a>
+      </div>
+      <div class="chart-box">
+        <canvas id="dashboardWeeklyChart" aria-label="Weekly workout minutes bar chart"></canvas>
+      </div>
+      <script id="dashboard-weekly-labels" type="application/json">{{ weekly_chart_labels_json|safe }}</script>
+      <script id="dashboard-weekly-values" type="application/json">{{ weekly_chart_values_json|safe }}</script>
+
+      <!-- Daily Motivation Strip -->
+      <div class="mt-3 pt-3 border-top border-secondary border-opacity-25 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+        <div>
+          <span class="small fw-bold text-lime tabular-num text-uppercase" id="quote-theme">{{ featured_quote.theme }}</span>
+          <p class="small fst-italic text-ink-bright mb-0" id="quote-text">{{ featured_quote.quote }}</p>
+          <span class="small text-ink-muted" id="quote-author">{{ featured_quote.author }}</span>
+        </div>
+        <button type="button" id="next-quote-btn" class="btn btn-outline-navy btn-sm text-nowrap flex-shrink-0">
+          <i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i>New Quote
+        </button>
+        <script id="motivational-quotes-data" type="application/json">{{ quotes_json|safe }}</script>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5 d-flex flex-column gap-4">
+    <!-- F. Daily Challenge -->
+    {% if daily_challenge_data.challenge %}
+    <div class="surface-tint-peach p-4">
+      <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+        <div>
+          <div class="meta-line mb-1">
+            <span class="fw-bold text-track-red">Daily Challenge</span>
+            <span aria-hidden="true">&middot;</span>
+            <span class="tabular-num text-lime">+{{ daily_challenge_data.challenge.xp_reward }} XP</span>
+          </div>
+          <h2 class="h4 fw-bold mb-1">{{ daily_challenge_data.challenge.title }}</h2>
+        </div>
+        <span class="icon-tile-peach" aria-hidden="true">
+          <i class="bi {{ daily_challenge_data.challenge.icon_name }}"></i>
+        </span>
+      </div>
+      <p class="small text-ink-muted mb-3">{{ daily_challenge_data.challenge.description }}</p>
+
+      {% if daily_challenge_data.is_completed %}
+      <div class="p-3 surface-complete-banner d-flex align-items-center justify-content-between">
+        <span class="small fw-bold">
+          <i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i>Today's challenge completed!
+        </span>
+        <span class="small fw-bold tabular-num">{{ daily_challenge_data.challenge.target_duration }} min logged</span>
+      </div>
+      {% else %}
+      <form method="post" action="{% url 'fitness:complete_challenge' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-lime w-100">
+          <i class="bi bi-check2-circle me-1" aria-hidden="true"></i>
+          Complete &amp; Log ({{ daily_challenge_data.challenge.target_duration }} min {{ daily_challenge_data.challenge.activity_name }})
+        </button>
+      </form>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Active Reward Jars Snapshot -->
+    <div class="surface-card p-4 flex-grow-1">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="h4 fw-bold mb-0">Active Goal Jars</h2>
+          <p class="small text-ink-muted mb-0">Live container progress</p>
+        </div>
+        <a href="{% url 'fitness:goals' %}" class="btn btn-outline-navy btn-sm">Manage</a>
+      </div>
+
+      {% if goal_cards %}
+      <div class="d-flex flex-column gap-3">
+        {% for item in goal_cards %}
+        <div class="d-flex justify-content-between align-items-start gap-3 pb-2 {% if not forloop.last %}border-bottom border-secondary border-opacity-25{% endif %}">
+          <div class="min-w-0 flex-grow-1">
+            <div class="fw-bold small text-ink-bright text-truncate">{{ item.goal.title }}</div>
+            <div class="meta-line mb-1">
+              <span>{{ item.goal.get_reward_container_display }}</span>
+              <span aria-hidden="true">&middot;</span>
+              <span class="tabular-num">{{ item.completed_value }} / {{ item.target_value }} {{ item.unit_label }}</span>
+              {% if not item.is_completed %}
+              <span aria-hidden="true">&middot;</span>
+              <span class="tabular-num">{{ item.remaining_value }} {{ item.unit_label }} left</span>
+              {% endif %}
+            </div>
+            <div class="progress-track mb-1">
+              <div class="progress-fill h-100 {% if item.is_completed %}completed{% endif %}" style="width: {{ item.progress_percent }}%;"></div>
+            </div>
+            {% if item.activity_breakdown %}
+            <div class="d-flex flex-wrap gap-1 mt-1">
+              {% for act in item.activity_breakdown|slice:":3" %}
+              <span class="jar-activity-chip jar-activity-chip-compact">
+                <span class="jar-activity-name">{{ act.activity_name }}</span>
+                <span class="jar-activity-time tabular-num">{{ act.total_minutes }} min</span>
+              </span>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="small text-ink-muted">No activity logged for {{ item.period_label }} yet</div>
+            {% endif %}
+          </div>
+          <span class="tabular-num fw-bold small {% if item.is_completed %}text-lime{% else %}text-ink-bright{% endif %}">
+            {{ item.raw_percent }}%
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="small text-ink-muted mb-2">No active goals yet. Create one to pick a Reward Jar!</p>
+      <a href="{% url 'fitness:goals' %}" class="btn btn-lime btn-sm">Set First Goal</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- G. Achievements Preview -->
+<section class="surface-card p-4 mb-4">
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+    <div>
+      <div class="meta-line mb-1">
+        <span class="meta-accent">Reward Collection</span>
+        <span aria-hidden="true">&middot;</span>
+        <span class="tabular-num">{{ achievements_summary.unlocked_count }} of {{ achievements_summary.total_count }} badges unlocked</span>
+        <span aria-hidden="true">&middot;</span>
+        <span class="tabular-num text-lime">{{ achievements_summary.total_xp }} XP</span>
+      </div>
+      <h2 class="h4 fw-bold mb-0">Achievements Preview</h2>
+    </div>
+    <a href="{% url 'fitness:rewards' %}" class="btn btn-outline-navy btn-sm">
+      Open Reward Collection <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+    </a>
+  </div>
+
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+    {% for ach in achievements_summary.items|slice:":4" %}
+    <div class="col">
+      <div class="p-3 rounded-4 border h-100 {% if ach.is_unlocked %}surface-tint-mint{% else %}surface-card{% endif %}">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="{% if ach.is_unlocked %}icon-tile{% else %}icon-tile-locked{% endif %}" aria-hidden="true">
+            <i class="bi {{ ach.achievement.icon_name }}"></i>
+          </span>
+          <div class="min-w-0">
+            <div class="fw-bold small text-ink-bright text-truncate">{{ ach.achievement.title }}</div>
+            <div class="small {% if ach.is_unlocked %}text-lime fw-semibold{% else %}text-ink-muted{% endif %} tabular-num">
+              {% if ach.is_unlocked %}Unlocked{% else %}{{ ach.current_value }} / {{ ach.target_value }}{% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="progress-track" style="height: 7px;">
+          <div class="progress-fill h-100 {% if ach.is_unlocked %}completed{% endif %}" style="width: {{ ach.progress_percent }}%;"></div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Recommended Activities -->
+<section class="mb-4">
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 mb-3">
+    <div>
+      <h2 class="h3 fw-bold mb-1">Recommended Adventures For You</h2>
+      <p class="small text-ink-muted mb-0">
+        Matched to <strong class="text-ink-bright">{{ profile.fitness_level }}</strong> &middot; <strong class="text-ink-bright">{{ profile.primary_goal }}</strong> &middot; <strong class="text-ink-bright">{{ profile.preferred_environment }}</strong>
+      </p>
+    </div>
+    <a href="{% url 'fitness:activities' %}" class="text-decoration-none small fw-semibold text-lime">
+      View all activities <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+    </a>
+  </div>
+
+  <div class="row g-3">
+    {% for activity in recommended_activities %}
+    <div class="col-md-6 col-xl-3">
+      <article class="surface-card surface-card-hover h-100 d-flex flex-column">
+        <div class="card-cover-wrap">
+          <img src="{% static activity.image_path %}" alt="{{ activity.name }}" class="card-cover-img" />
+        </div>
+        <div class="p-3 p-lg-4 flex-grow-1 d-flex flex-column justify-content-between">
+          <div>
+            <div class="meta-line mb-1">
+              <span class="meta-accent">{{ activity.category }}</span>
+              <span aria-hidden="true">&middot;</span>
+              <span>{{ activity.difficulty_level }}</span>
+              <span aria-hidden="true">&middot;</span>
+              <span class="tabular-num">{{ activity.estimated_duration }}m</span>
+            </div>
+            <h3 class="h5 fw-bold mb-1">{{ activity.name }}</h3>
+            <p class="small text-ink-muted mb-3">{{ activity.description|truncatewords:12 }}</p>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="{% url 'fitness:activity_detail' activity.pk %}" class="btn btn-lime btn-sm flex-grow-1">Start Activity</a>
+          </div>
+        </div>
+      </article>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Recent Workouts + Featured Sports -->
+<section class="row g-4">
+  <div class="col-lg-7">
+    <div class="surface-card p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="h4 fw-bold mb-0">Recent Workouts</h2>
+          <p class="small text-ink-muted mb-0">Your latest five logged sessions</p>
+        </div>
+        <a href="{% url 'fitness:workouts' %}" class="text-decoration-none small fw-semibold text-lime">
+          Open tracker <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+        </a>
+      </div>
+
+      {% if recent_workouts %}
+      <div class="table-responsive">
+        <table class="table workout-table mb-0">
+          <thead>
+            <tr>
+              <th>Activity</th>
+              <th>Date</th>
+              <th class="text-end">Duration</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for workout in recent_workouts %}
+            <tr>
+              <td class="fw-semibold text-ink-bright">{{ workout.activity_name }}</td>
+              <td class="text-ink-muted small tabular-num">{{ workout.date|date:"M d, Y" }}</td>
+              <td class="text-end tabular-num fw-bold text-lime">{{ workout.duration }} min</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-4">
+        <p class="small text-ink-muted mb-3">Log your first session or complete today's Daily Challenge to fill your Reward Jar!</p>
+        <a href="{% url 'fitness:workouts' %}#log-workout-form" class="btn btn-lime btn-sm">Log First Workout</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="surface-card p-4 h-100 d-flex flex-column justify-content-between">
+      <div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h2 class="h4 fw-bold mb-0">Featured Sports</h2>
+            <p class="small text-ink-muted mb-0">Sporting adventures for your routine</p>
+          </div>
+          <a href="{% url 'fitness:sports' %}" class="text-decoration-none small fw-semibold text-lime">
+            All sports
+          </a>
+        </div>
+        <div class="d-flex flex-column gap-2 mb-3">
+          {% for sport in featured_sports %}
+          <a
+            href="{% url 'fitness:sport_detail' sport.pk %}"
+            class="d-flex justify-content-between align-items-center p-2 surface-list-item text-decoration-none"
+          >
+            <div class="d-flex align-items-center gap-2">
+              <img src="{% static sport.image_path %}" alt="{{ sport.name }}" class="workout-thumb" />
+              <div>
+                <div class="fw-semibold text-ink-bright small">{{ sport.name }}</div>
+                <div class="text-ink-muted" style="font-size: 0.75rem;">{{ sport.environment }} &middot; {{ sport.difficulty_level }}</div>
+              </div>
+            </div>
+            <span class="tabular-num small fw-bold text-lime">{{ sport.recommended_duration }} min</span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      <a href="{% url 'fitness:sports' %}" class="btn btn-navy w-100 btn-sm">
+        What Should I Play Today? <i class="bi bi-shuffle ms-1" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- 7-Step Interactive FitBuddy Onboarding Tour -->
+{% if show_tutorial %}
+<div
+  class="tour-overlay"
+  id="fittrackTourOverlay"
+  data-complete-url="{% url 'fitness:complete_tutorial' %}"
+  data-csrf="{{ csrf_token }}"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="tourStepTitle"
+>
+  <div class="tour-card">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      {% include "partials/fitbuddy_svg.html" with buddy_gender=profile.companion_choice buddy_state="greeting" buddy_size="64px" %}
+      <div>
+        <div class="small fw-bold text-lime tabular-num" id="tourStepCounter">Step 1 of 7</div>
+        <h2 class="h4 fw-bold text-ink-bright mb-0" id="tourStepTitle">Welcome to FitTrack!</h2>
+      </div>
+    </div>
+    <p class="small text-ink-body mb-4" id="tourStepBody">
+      Hi! I'm {{ fitbuddy.companion_name }}, your FitBuddy companion. Every workout you complete fills your Reward Jars and unlocks achievements!
+    </p>
+    <div class="d-flex justify-content-between align-items-center gap-2">
+      <button type="button" class="btn btn-link btn-sm text-ink-muted text-decoration-none p-0" id="tourSkipBtn">
+        Skip Tutorial
+      </button>
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-navy btn-sm d-none" id="tourBackBtn">Back</button>
+        <button type="button" class="btn btn-lime btn-sm px-3" id="tourNextBtn">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script type="module" src="{% static 'js/track-3d.js' %}"></script>
+{% endblock %}

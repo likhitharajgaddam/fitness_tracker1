@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="Tennis player rallying on a clay-and-mint court">
+  <defs>
+    <linearGradient id="tenBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ECFDF5"/>
+      <stop offset="100%" stop-color="#EDE9FE"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#tenBg)"/>
+  <polygon points="0,206 480,206 480,300 0,300" fill="#16A34A" opacity="0.78"/>
+  <line x1="30" y1="246" x2="450" y2="246" stroke="#FFFFFF" stroke-width="4"/>
+  <!-- Tennis Net -->
+  <rect x="280" y="162" width="188" height="44" fill="#FFFFFF" opacity="0.55" stroke="#1E293B" stroke-width="2"/>
+  <line x1="280" y1="162" x2="468" y2="162" stroke="#FFFFFF" stroke-width="6"/>
+  <!-- Neon Tennis Ball -->
+  <circle cx="298" cy="108" r="12" fill="#BEF264" stroke="#4D7C0F" stroke-width="2"/>
+  <path d="M290 100 Q298 108 290 116" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+  <!-- Player Forehand -->
+  <g transform="translate(128, 66)">
+    <ellipse cx="44" cy="172" rx="40" ry="7" fill="#065F46" opacity="0.22"/>
+    <path d="M36 112 L18 148 L12 168" stroke="#1E1B4B" stroke-width="12" stroke-linecap="round" fill="none"/>
+    <path d="M52 112 L72 146 L82 168" stroke="#312E81" stroke-width="12" stroke-linecap="round" fill="none"/>
+    <rect x="26" y="54" width="34" height="60" rx="14" fill="#FFFFFF" stroke="#7C3AED" stroke-width="3"/>
+    <path d="M56 66 L96 58" stroke="#FDBA74" stroke-width="9" stroke-linecap="round"/>
+    <line x1="96" y1="58" x2="116" y2="46" stroke="#1E293B" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="132" cy="36" rx="16" ry="22" transform="rotate(55 132 36)" fill="none" stroke="#7C3AED" stroke-width="5"/>
+    <circle cx="43" cy="30" r="17" fill="#FDBA74"/>
+    <path d="M26 24 L58 24" stroke="#10B981" stroke-width="6" stroke-linecap="round"/>
+  </g>
+</svg>

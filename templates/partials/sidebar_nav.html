@@ -1,0 +1,102 @@
+{% if not hide_brand %}
+<div class="sidebar-brand-area">
+  <a class="app-brand" href="{% url 'fitness:dashboard' %}">
+    <span class="brand-mark" aria-hidden="true">
+      <i class="bi bi-activity"></i>
+    </span>
+    <span>FitTrack</span>
+  </a>
+</div>
+{% endif %}
+
+<nav class="sidebar-nav" aria-label="Application navigation">
+  <div class="sidebar-section-label">ADVENTURE</div>
+  <a
+    href="{% url 'fitness:dashboard' %}"
+    data-tour-id="nav-dashboard"
+    class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+  >
+    <i class="bi bi-grid-1x2" aria-hidden="true"></i>
+    <span>Dashboard</span>
+  </a>
+  <a
+    href="{% url 'fitness:activities' %}"
+    data-tour-id="nav-activities"
+    class="sidebar-link {% if request.resolver_match.url_name == 'activities' or request.resolver_match.url_name == 'activity_detail' %}active{% endif %}"
+  >
+    <i class="bi bi-lightning-charge" aria-hidden="true"></i>
+    <span>Fitness Activities</span>
+  </a>
+  <a
+    href="{% url 'fitness:sports' %}"
+    data-tour-id="nav-sports"
+    class="sidebar-link {% if request.resolver_match.url_name == 'sports' or request.resolver_match.url_name == 'sport_detail' %}active{% endif %}"
+  >
+    <i class="bi bi-trophy" aria-hidden="true"></i>
+    <span>Sports Ideas</span>
+  </a>
+  <a
+    href="{% url 'fitness:workouts' %}"
+    data-tour-id="nav-workouts"
+    class="sidebar-link {% if request.resolver_match.url_name == 'workouts' or request.resolver_match.url_name == 'edit_workout' %}active{% endif %}"
+  >
+    <i class="bi bi-journal-check" aria-hidden="true"></i>
+    <span>Workout Tracker</span>
+  </a>
+  <a
+    href="{% url 'fitness:goals' %}"
+    data-tour-id="nav-goals"
+    class="sidebar-link {% if request.resolver_match.url_name == 'goals' or request.resolver_match.url_name == 'edit_goal' %}active{% endif %}"
+  >
+    <i class="bi bi-cup-straw" aria-hidden="true"></i>
+    <span>Reward Jars &amp; Goals</span>
+  </a>
+  <a
+    href="{% url 'fitness:rewards' %}"
+    data-tour-id="nav-rewards"
+    class="sidebar-link {% if request.resolver_match.url_name == 'rewards' %}active{% endif %}"
+  >
+    <i class="bi bi-award" aria-hidden="true"></i>
+    <span>Rewards &amp; Badges</span>
+  </a>
+  <a
+    href="{% url 'fitness:analytics' %}"
+    data-tour-id="nav-analytics"
+    class="sidebar-link {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}"
+  >
+    <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+    <span>Fitness Journey</span>
+  </a>
+
+  <div class="sidebar-section-label mt-2">ACCOUNT</div>
+  <a
+    href="{% url 'fitness:profile' %}"
+    class="sidebar-link {% if request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'profile_setup' %}active{% endif %}"
+  >
+    <i class="bi bi-person-circle" aria-hidden="true"></i>
+    <span>My Profile</span>
+  </a>
+  <a
+    href="{% url 'fitness:settings' %}"
+    class="sidebar-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}"
+  >
+    <i class="bi bi-sliders" aria-hidden="true"></i>
+    <span>Settings</span>
+  </a>
+  {% if request.user.is_staff %}
+  <a href="/admin/" class="sidebar-link">
+    <i class="bi bi-shield-lock" aria-hidden="true"></i>
+    <span>Admin Panel</span>
+  </a>
+  {% endif %}
+</nav>
+
+<div class="sidebar-footer">
+  <form method="post" action="{% url 'fitness:logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="sidebar-link sidebar-logout-btn">
+      <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+      <span>Logout</span>
+    </button>
+  </form>
+</div>

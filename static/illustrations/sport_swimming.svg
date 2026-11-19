@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="Swimmer gliding through pool lanes">
+  <defs>
+    <linearGradient id="poolSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E0F2FE"/>
+      <stop offset="100%" stop-color="#BAE6FD"/>
+    </linearGradient>
+    <linearGradient id="poolWater" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#0284C7"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#poolSky)"/>
+  <rect x="0" y="136" width="480" height="164" fill="url(#poolWater)"/>
+  <!-- Lane Divider -->
+  <line x1="0" y1="154" x2="480" y2="154" stroke="#FFFFFF" stroke-width="6" stroke-dasharray="16 10" opacity="0.8"/>
+  <line x1="0" y1="258" x2="480" y2="258" stroke="#FDE047" stroke-width="6" stroke-dasharray="16 10" opacity="0.8"/>
+  <!-- Water Waves -->
+  <path d="M40 205 Q90 192 140 205 T240 205 T340 205 T440 205" stroke="#BAE6FD" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- Swimmer Freestyle -->
+  <g transform="translate(135, 134)">
+    <path d="M18 66 Q65 56 125 60" stroke="#7C3AED" stroke-width="20" stroke-linecap="round" fill="none"/>
+    <path d="M120 56 Q146 22 184 36" stroke="#FDBA74" stroke-width="10" stroke-linecap="round" fill="none"/>
+    <circle cx="138" cy="52" r="15" fill="#FDBA74"/>
+    <path d="M124 46 Q138 32 152 46 Z" fill="#10B981"/>
+    <rect x="142" y="48" width="12" height="6" rx="2" fill="#0EA5E9"/>
+  </g>
+</svg>

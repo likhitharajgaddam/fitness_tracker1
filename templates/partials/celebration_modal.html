@@ -1,0 +1,41 @@
+<canvas id="celebrationConfettiCanvas" class="d-none" aria-hidden="true"></canvas>
+
+<div
+  class="modal fade"
+  id="adventureCelebrationModal"
+  tabindex="-1"
+  aria-labelledby="celebrationModalTitle"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg celebration-modal-content">
+      <div class="p-4 text-center celebration-modal-header">
+        <div class="d-flex justify-content-center mb-2">
+          {% if profile %}
+            {% include "partials/fitbuddy_svg.html" with buddy_gender=profile.companion_choice buddy_state="goal_achieved" buddy_size="86px" %}
+          {% else %}
+            {% include "partials/fitbuddy_svg.html" with buddy_gender="female" buddy_state="goal_achieved" buddy_size="86px" %}
+          {% endif %}
+        </div>
+        <h2 class="h2 fw-bold text-lime mb-1" id="celebrationModalTitle">YOU DID IT!</h2>
+        <p class="mb-0 small text-ink-muted" id="celebrationModalSubtitle">
+          Every move counts — your Fitness World just leveled up!
+        </p>
+      </div>
+      <div class="modal-body p-4 text-center" id="celebrationModalBody">
+        <!-- Populated dynamically by JS from pendingCelebration JSON -->
+      </div>
+      <div class="modal-footer border-0 justify-content-center pb-4 pt-0 gap-2">
+        <a href="{% url 'fitness:rewards' %}" class="btn btn-outline-navy">
+          <i class="bi bi-award me-1" aria-hidden="true"></i>View Rewards
+        </a>
+        <button type="button" class="btn btn-lime" data-bs-dismiss="modal">
+          Keep Moving
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% if pending_celebration_json %}
+<script id="pending-celebration-data" type="application/json">{{ pending_celebration_json|safe }}</script>
+{% endif %}

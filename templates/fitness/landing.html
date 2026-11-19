@@ -1,0 +1,574 @@
+{% extends "base_public.html" %}
+{% load static %}
+
+{% block title %}FitTrack – Your Fitness Journey Starts Here{% endblock %}
+
+{% block content %}
+<!-- FULL-VIEWPORT INTERACTIVE 3D NIGHT MARATHON TRACK STAGE -->
+<section
+  id="fittrack3DLandingStage"
+  class="track-3d-stage"
+  aria-label="Interactive 3D Night Marathon Fitness Course"
+>
+  <div class="track-3d-mount" data-webgl-mount></div>
+  <div class="track-3d-scrim" aria-hidden="true"></div>
+
+  <!-- Stage Top Utility Bar -->
+  <div class="track-stage-topbar">
+    <div class="d-flex align-items-center gap-2">
+      <span class="tabular-num small fw-bold text-lime text-uppercase" style="letter-spacing: 0.12em;">
+        FITTRACK NIGHT RUN
+      </span>
+      <span class="small text-ink-muted d-none d-md-inline tabular-num">
+        &middot; 7 STAGES ON COURSE
+      </span>
+    </div>
+    <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+      <button
+        type="button"
+        class="hud-pill-btn"
+        data-theme-toggle
+        aria-pressed="false"
+        title="Switch between Dark Mode and Light Mode"
+      >
+        <i class="bi bi-sun-fill" aria-hidden="true"></i>
+        <span data-theme-label>LIGHT MODE</span>
+      </button>
+      <button
+        type="button"
+        class="hud-pill-btn"
+        data-sound-toggle
+        aria-pressed="false"
+        title="Toggle Web Audio sound effects"
+      >
+        <i class="bi bi-volume-mute-fill" aria-hidden="true"></i>
+        <span>SOUND OFF</span>
+      </button>
+      <button
+        type="button"
+        class="hud-pill-btn"
+        data-course-map-toggle
+        aria-label="Open 3D course checkpoint map"
+      >
+        <i class="bi bi-signpost-split" aria-hidden="true"></i>
+        <span>COURSE MAP</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive Course Map Drawer -->
+  <aside class="course-map-drawer" data-course-map-drawer aria-label="Course Map Checkpoints">
+    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-25">
+      <div>
+        <div class="tabular-num small fw-bold text-lime">COURSE MAP</div>
+        <div class="small text-ink-muted" style="font-size: 0.74rem;">Jump straight to any track milestone</div>
+      </div>
+      <button
+        type="button"
+        class="btn btn-sm p-1 text-ink-muted border-0"
+        data-course-map-toggle
+        aria-label="Close course map"
+      >
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="d-flex flex-column gap-2">
+      <button type="button" class="course-map-stop active" data-jump-stage="0">
+        <span><strong class="tabular-num me-2">00K</strong>Start Line · FitTrack</span>
+        <i class="bi bi-flag-fill" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="course-map-stop" data-jump-stage="1">
+        <span><strong class="tabular-num me-2">01K</strong>Guided Activities &amp; Timers</span>
+        <i class="bi bi-stopwatch" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="course-map-stop" data-jump-stage="2">
+        <span><strong class="tabular-num me-2">02K</strong>Sports Ideas &amp; Slot Picker</span>
+        <i class="bi bi-trophy" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="course-map-stop" data-jump-stage="3">
+        <span><strong class="tabular-num me-2">03K</strong>6 Animated Reward Jars</span>
+        <i class="bi bi-cup-straw" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="course-map-stop" data-jump-stage="4">
+        <span><strong class="tabular-num me-2">04K</strong>FitBuddy Coach (Nova &amp; Atlas)</span>
+        <i class="bi bi-emoji-smile" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="course-map-stop" data-jump-stage="5">
+        <span><strong class="tabular-num me-2">05K</strong>Daily Challenges &amp; Streaks</span>
+        <i class="bi bi-fire" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="course-map-stop" data-jump-stage="6">
+        <span><strong class="tabular-num me-2">07K</strong>Finish · Badges &amp; Analytics</span>
+        <i class="bi bi-award-fill" aria-hidden="true"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Left Overlay: Tactile Race Bib Card + Dynamic Stage Narrative -->
+  <div class="track-stage-left-overlay">
+    <div class="race-bib-card" aria-label="FitTrack Official Athlete Race Bib">
+      <span class="bib-pin bib-pin-tl" aria-hidden="true"></span>
+      <span class="bib-pin bib-pin-tr" aria-hidden="true"></span>
+      <span class="bib-pin bib-pin-bl" aria-hidden="true"></span>
+      <span class="bib-pin bib-pin-br" aria-hidden="true"></span>
+
+      <div class="race-bib-header">
+        <div class="race-bib-brand">FITTRACK</div>
+        <div class="race-bib-sub">PERSONAL FITNESS COMPANION &middot; NIGHT TRACK</div>
+      </div>
+
+      <div class="race-bib-body">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="race-bib-wave">WAVE <strong>A</strong></span>
+          <span class="race-bib-barcode" aria-hidden="true"></span>
+        </div>
+
+        <div class="race-bib-number tabular-num">
+          00{{ activity_count|add:sport_count }}
+        </div>
+        <div class="race-bib-caption">
+          ACTIVITIES &amp; SPORTS ON THE COURSE
+        </div>
+
+        <div class="race-bib-footer">
+          <span>Every Move Counts.</span>
+          <span>6 JARS &middot; 8 BADGES</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-story-panel">
+      <div class="tabular-num small fw-bold text-lime mb-1" data-stage-meta>
+        STAGE 01 &middot; START LINE &middot; EVERY GOAL UNLOCKS SOMETHING
+      </div>
+      <h1 class="stage-story-headline" data-stage-title>
+        Your Fitness Journey Starts Here.
+      </h1>
+      <p class="stage-story-copy" data-stage-body>
+        Turn daily movement into a rewarding adventure. Team up with your animated FitBuddy, fill interactive Reward Jars as you complete real workouts, explore exercises and sports, and unlock badges along the way.
+      </p>
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <a href="{% url 'fitness:signup' %}" class="btn btn-lime px-4">
+          Get Started Free <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+        </a>
+        <a href="{% url 'fitness:login' %}" class="btn btn-outline-navy px-3">
+          Log In
+        </a>
+        <a
+          href="{% url 'fitness:activities' %}"
+          class="btn btn-link btn-sm text-lime fw-semibold text-decoration-none px-2"
+          data-stage-action
+        >
+          Explore Activities &rarr;
+        </a>
+      </div>
+
+      <div class="scroll-run-hint">
+        <i class="bi bi-mouse" aria-hidden="true"></i>
+        <span>SCROLL TO RUN ALONG</span>
+        <span class="text-ink-muted">&middot; Or hold</span>
+        <kbd class="keycap">Space</kbd>
+        <span class="text-ink-muted">/</span>
+        <kbd class="keycap">&uarr;</kbd>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unified Collapsible Bottom Telemetry HUD Dock -->
+  <div class="track-hud-dock-wrap" data-hud-dock>
+    <button
+      type="button"
+      class="hud-collapse-tab"
+      data-hud-collapse-toggle
+      aria-expanded="true"
+    >
+      <i class="bi bi-chevron-down" aria-hidden="true"></i>
+      <span>Hide HUD</span>
+    </button>
+    <div class="track-hud-dock" role="region" aria-label="Live marathon track telemetry">
+      <svg
+        class="hud-minimap-svg"
+        viewBox="0 0 36 58"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          data-hud-spline-path
+          d="M 18 54 C 18 44, 29 40, 26 32 C 23 24, 9 23, 12 15 C 15 8, 22 9, 18 4"
+          stroke="rgba(244, 247, 244, 0.28)"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
+        <circle
+          data-hud-spline-dot
+          cx="18"
+          cy="54"
+          r="4.2"
+          fill="#d4ff2b"
+        />
+      </svg>
+
+      <div>
+        <div class="hud-stage-line">
+          <span>STAGE</span>
+          <strong class="text-ink-bright" data-hud-stage-num>01/07</strong>
+          <span class="text-lime fw-bold" data-hud-stage-label>START</span>
+        </div>
+        <div class="hud-km-readout">
+          <span data-hud-km>00.000</span><span class="hud-km-unit">KM</span>
+        </div>
+        <div class="hud-sub-metrics">
+          <span>PACE <strong data-hud-pace>--:--</strong></span>
+          <span>TIME <strong data-hud-time>00:00</strong></span>
+        </div>
+      </div>
+
+      <button type="button" class="btn-hold-run" data-hold-run>
+        <i class="bi bi-lightning-charge-fill me-1" aria-hidden="true"></i>Hold Run
+      </button>
+    </div>
+  </div>
+
+  <!-- 7-Stage Interactive Course Narrative Data -->
+  <script id="landing-track-stages-json" type="application/json">
+    [
+      {
+        "shortLabel": "START",
+        "meta": "STAGE 01 · START LINE · EVERY GOAL UNLOCKS SOMETHING",
+        "title": "Your Fitness Journey Starts Here.",
+        "body": "Turn daily movement into a rewarding adventure. Team up with your animated FitBuddy, fill interactive Reward Jars with real workouts, and race toward your next milestone.",
+        "ctaText": "Explore Activities →",
+        "ctaHref": "{% url 'fitness:activities' %}"
+      },
+      {
+        "shortLabel": "01K · ACTIVITIES",
+        "meta": "STAGE 02 · GUIDED EXERCISES & 3-2-1 RACE TIMERS",
+        "title": "10+ Illustrated Fitness Guides With Live Timers.",
+        "body": "From Walking and Yoga to Jump Rope and Core Planks—kick off a live 3-2-1-GO countdown timer right on the guide page and log your completed session in one tap.",
+        "ctaText": "Browse Exercises →",
+        "ctaHref": "{% url 'fitness:activities' %}"
+      },
+      {
+        "shortLabel": "02K · SPORTS",
+        "meta": "STAGE 03 · INDOOR & OUTDOOR SPORTING ADVENTURES",
+        "title": "Spin 'What Should I Play Today?' For Instant Fun.",
+        "body": "Can't decide between Badminton, Swimming, Basketball, or Table Tennis? Pull our kinetic slot-reel sport picker for an instant match tailored to your energy.",
+        "ctaText": "Discover Sports →",
+        "ctaHref": "{% url 'fitness:sports' %}"
+      },
+      {
+        "shortLabel": "03K · JARS",
+        "meta": "STAGE 04 · VISUAL GOAL CONTAINERS",
+        "title": "6 Animated Reward Jars Powered By Real Workouts.",
+        "body": "Watch Popcorn Buckets pop, Juice Glasses fill, Flowers bloom, and Fish Tanks come alive as every logged minute brings your daily or weekly goal closer to 100%.",
+        "ctaText": "Start Filling Jars →",
+        "ctaHref": "{% url 'fitness:signup' %}"
+      },
+      {
+        "shortLabel": "04K · FITBUDDY",
+        "meta": "STAGE 05 · YOUR ANIMATED TRACK PACEMAKER",
+        "title": "Meet Nova & Atlas — Your Personal FitBuddy.",
+        "body": "Choose your animated fitness buddy to cheer your timers, celebrate milestones with stadium confetti, and keep your spirit high whenever you step back on the track.",
+        "ctaText": "Pick Your Buddy →",
+        "ctaHref": "{% url 'fitness:signup' %}"
+      },
+      {
+        "shortLabel": "05K · STREAKS",
+        "meta": "STAGE 06 · DAILY CHALLENGES & CONSISTENCY FLAME",
+        "title": "Daily Mini-Quests & 7-Day Streak Momentum.",
+        "body": "Knock out one-click Daily Challenges for bonus XP, keep your 7-day flame strip glowing, and watch your personal 3D dashboard track celebrate every workout.",
+        "ctaText": "Join The Track →",
+        "ctaHref": "{% url 'fitness:signup' %}"
+      },
+      {
+        "shortLabel": "FINISH",
+        "meta": "STAGE 07 · FINISH LINE · UNLOCK 8 REAL BADGES",
+        "title": "Cross The Finish Line & Claim Your Trophies.",
+        "body": "Every workout is saved privately in your account with rich progress charts, 8 unlockable achievement badges, and adventurer levels. Ready to pin on your bib?",
+        "ctaText": "Create Free Account →",
+        "ctaHref": "{% url 'fitness:signup' %}"
+      }
+    ]
+  </script>
+</section>
+
+<!-- About FitTrack & Why Choose FitTrack -->
+<section id="about-fittrack" class="py-5 section-band-alt">
+  <div class="container-xl py-3">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6">
+        <div class="meta-line mb-2">
+          <span class="meta-accent">About FitTrack</span>
+          <span aria-hidden="true">&middot;</span>
+          <span>Playful Motivation Meets Real Tracking</span>
+        </div>
+        <h2 class="display-6 fw-bold mb-3">Built to make staying active feel rewarding from day one.</h2>
+        <p class="text-ink-muted mb-3">
+          Traditional fitness logs feel like spreadsheets. FitTrack blends real Django database tracking with a 3D night-track adventure, visual Reward Jars, an animated FitBuddy companion, live exercise timers, and daily challenges so every workout visibly moves your world forward.
+        </p>
+        <p class="text-ink-muted mb-4">
+          Whether you are taking a 20-minute park walk, trying badminton with friends, or building a weekly consistency streak, your progress stays private and tailored to your preferences.
+        </p>
+
+        <div class="row g-3 mb-4">
+          <div class="col-6">
+            <div class="surface-tint-lavender p-3">
+              <div class="h2 fw-bold tabular-num text-lime mb-0">{{ activity_count }}+</div>
+              <div class="small text-ink-muted">Illustrated Fitness Guides</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="surface-tint-mint p-3">
+              <div class="h2 fw-bold tabular-num mb-0" style="color: var(--mint-500);">{{ sport_count }}+</div>
+              <div class="small text-ink-muted">Curated Sports Adventures</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live FitBuddy & Reward Jar Interactive Preview Pair -->
+        <div class="surface-card p-3 p-sm-4">
+          <div class="row g-3 align-items-center">
+            <div class="col-sm-6 text-center">
+              <div class="surface-tint-lavender p-3 h-100">
+                <div class="d-flex justify-content-center mb-2">
+                  {% include "partials/fitbuddy_svg.html" with buddy_gender="female" buddy_state="greeting" buddy_size="78px" %}
+                </div>
+                <div class="fw-bold small text-ink-bright">Meet FitBuddy</div>
+                <p class="small text-ink-muted mb-0">
+                  "Hey! Ready to move today? Every workout fills your jar!"
+                </p>
+              </div>
+            </div>
+            <div class="col-sm-6 text-center">
+              <div class="surface-tint-mint p-3 h-100">
+                <div class="d-flex justify-content-center mb-1">
+                  {% include "partials/reward_jar_svg.html" with container_type="juice" progress_percent=75 theme_color="peach" jar_id="landing-preview" size="md" %}
+                </div>
+                <div class="fw-bold small text-ink-bright">My Fitness Reward Jar</div>
+                <div class="small text-lime tabular-num">45 / 60 min &middot; 75% filled</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="meta-line mb-1">
+          <span class="meta-accent">Why Choose FitTrack</span>
+          <span aria-hidden="true">&middot;</span>
+          <span>6 Reward Jars &middot; 8 Unlockable Badges</span>
+        </div>
+        <h3 class="h2 fw-bold mb-3">Designed Like A Game, Powered By Real Habits</h3>
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <div class="surface-card surface-card-hover p-4 h-100">
+              <span class="icon-tile-purple mb-3" aria-hidden="true"><i class="bi bi-cup-straw"></i></span>
+              <h4 class="h5 fw-bold mb-1">Interactive Reward Jars</h4>
+              <p class="small text-ink-muted mb-0">Fill Popcorn Buckets, Juice Glasses, Flower Pots, or Treasure Chests with real workouts.</p>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="surface-card surface-card-hover p-4 h-100">
+              <span class="icon-tile mb-3" aria-hidden="true"><i class="bi bi-emoji-smile"></i></span>
+              <h4 class="h5 fw-bold mb-1">FitBuddy Companion</h4>
+              <p class="small text-ink-muted mb-0">Choose Atlas or Nova to cheer your timer sessions, celebrate milestones, and share tips.</p>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="surface-card surface-card-hover p-4 h-100">
+              <span class="icon-tile-peach mb-3" aria-hidden="true"><i class="bi bi-award"></i></span>
+              <h4 class="h5 fw-bold mb-1">Achievement Badges &amp; XP</h4>
+              <p class="small text-ink-muted mb-0">Unlock real milestone badges from Consistency Star to Marathon Mindset.</p>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="surface-card surface-card-hover p-4 h-100">
+              <span class="icon-tile-sky mb-3" aria-hidden="true"><i class="bi bi-stopwatch"></i></span>
+              <h4 class="h5 fw-bold mb-1">Guided Race Timer</h4>
+              <p class="small text-ink-muted mb-0">Launch a 3-2-1-GO countdown, pause, and finish live sessions right from any exercise guide.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Fitness Activities Preview -->
+<section class="py-5">
+  <div class="container-xl py-2">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-2 mb-4">
+      <div>
+        <div class="meta-line mb-1">
+          <span class="meta-accent">Unique Exercise Illustrations</span>
+          <span aria-hidden="true">&middot;</span>
+          <span>Open to Explore</span>
+        </div>
+        <h2 class="h2 fw-bold mb-0">Fitness Activities Preview</h2>
+      </div>
+      <a href="{% url 'fitness:activities' %}" class="btn btn-outline-navy btn-sm">
+        Explore All Activities <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+      </a>
+    </div>
+
+    <div class="row g-3 g-lg-4">
+      {% for activity in preview_activities %}
+      <div class="col-md-6 col-xl-3">
+        <article class="surface-card surface-card-hover h-100 d-flex flex-column">
+          <div class="card-cover-wrap">
+            <img src="{% static activity.image_path %}" alt="{{ activity.name }}" class="card-cover-img" />
+          </div>
+          <div class="p-4 flex-grow-1 d-flex flex-column justify-content-between">
+            <div>
+              <div class="meta-line mb-1">
+                <span class="meta-accent">{{ activity.category }}</span>
+                <span aria-hidden="true">&middot;</span>
+                <span>{{ activity.difficulty_level }}</span>
+                <span aria-hidden="true">&middot;</span>
+                <span class="tabular-num">{{ activity.estimated_duration }} min</span>
+              </div>
+              <h3 class="h4 fw-bold mb-2">{{ activity.name }}</h3>
+              <p class="small text-ink-muted mb-3">{{ activity.description|truncatewords:15 }}</p>
+            </div>
+            <a href="{% url 'fitness:activity_detail' activity.pk %}" class="btn btn-outline-navy btn-sm w-100">
+              View Exercise Guide
+            </a>
+          </div>
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Sports Ideas Preview -->
+<section class="py-5 section-band-alt">
+  <div class="container-xl py-2">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-2 mb-4">
+      <div>
+        <div class="meta-line mb-1">
+          <span class="meta-mint">Sporting Adventures</span>
+          <span aria-hidden="true">&middot;</span>
+          <span>Indoor &amp; Outdoor</span>
+        </div>
+        <h2 class="h2 fw-bold mb-0">Sports Ideas Preview</h2>
+      </div>
+      <a href="{% url 'fitness:sports' %}" class="btn btn-outline-navy btn-sm">
+        Explore All Sports <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+      </a>
+    </div>
+
+    <div class="row g-3 g-lg-4">
+      {% for sport in preview_sports %}
+      <div class="col-md-6 col-xl-3">
+        <article class="surface-card surface-card-hover h-100 d-flex flex-column">
+          <div class="card-cover-wrap">
+            <img src="{% static sport.image_path %}" alt="{{ sport.name }}" class="card-cover-img" />
+          </div>
+          <div class="p-4 flex-grow-1 d-flex flex-column justify-content-between">
+            <div>
+              <div class="meta-line mb-1">
+                <span class="meta-mint">{{ sport.environment }}</span>
+                <span aria-hidden="true">&middot;</span>
+                <span class="tabular-num">{{ sport.recommended_duration }} min</span>
+              </div>
+              <h3 class="h4 fw-bold mb-2">{{ sport.name }}</h3>
+              <p class="small text-ink-muted mb-3">{{ sport.description|truncatewords:15 }}</p>
+            </div>
+            <a href="{% url 'fitness:sport_detail' sport.pk %}" class="btn btn-outline-navy btn-sm w-100">
+              View Sport Adventure
+            </a>
+          </div>
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Benefits of Regular Physical Activity -->
+<section id="benefits" class="py-5">
+  <div class="container-xl py-2">
+    <div class="adventure-hero p-4 p-lg-5">
+      <div class="row g-4 align-items-center position-relative" style="z-index: 2;">
+        <div class="col-lg-5">
+          <span class="small fw-bold text-lime tabular-num text-uppercase">Why Movement Matters</span>
+          <h2 class="display-6 fw-bold text-ink-bright mt-1 mb-3">Benefits of Regular Physical Activity</h2>
+          <p class="text-ink-muted mb-4">
+            Consistent daily movement—even 20 minutes of walking, yoga, or court sports—builds cardiovascular stamina, sharper focus, stronger joints, and deeper sleep.
+          </p>
+          <a href="{% url 'fitness:signup' %}" class="btn btn-lime">
+            Start Your Adventure <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+          </a>
+        </div>
+        <div class="col-lg-7">
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <div class="surface-card p-3 h-100">
+                <div class="fw-bold text-ink-bright mb-1"><i class="bi bi-heart-pulse text-track-red me-2" aria-hidden="true"></i>Cardiovascular Strength</div>
+                <p class="small text-ink-muted mb-0">Improves heart efficiency, endurance, and daily energy levels.</p>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="surface-card p-3 h-100">
+                <div class="fw-bold text-ink-bright mb-1"><i class="bi bi-brightness-high text-lime me-2" aria-hidden="true"></i>Mental Clarity &amp; Mood</div>
+                <p class="small text-ink-muted mb-0">Relieves study and work stress while lifting daytime focus.</p>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="surface-card p-3 h-100">
+                <div class="fw-bold text-ink-bright mb-1"><i class="bi bi-shield-check me-2" style="color: var(--mint-500);" aria-hidden="true"></i>Joint &amp; Muscle Resilience</div>
+                <p class="small text-ink-muted mb-0">Strengthens posture, mobility, and balanced athletic coordination.</p>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="surface-card p-3 h-100">
+                <div class="fw-bold text-ink-bright mb-1"><i class="bi bi-moon-stars me-2" style="color: var(--sky-400);" aria-hidden="true"></i>Better Sleep &amp; Recovery</div>
+                <p class="small text-ink-muted mb-0">Supports deeper overnight rest and consistent weekly habits.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Demo Testimonials -->
+<section class="py-5 section-band-alt">
+  <div class="container-xl py-2">
+    <div class="text-center mb-4">
+      <div class="meta-line justify-content-center mb-1">
+        <span class="meta-accent">Community Highlights</span>
+        <span aria-hidden="true">&middot;</span>
+        <span>Demo Testimonials</span>
+      </div>
+      <h2 class="h2 fw-bold mb-1">How FitTrack Keeps Members Returning</h2>
+      <p class="small text-ink-muted mb-0">Illustrative demo member profiles showcasing FitTrack adventures.</p>
+    </div>
+
+    <div class="row g-3 g-lg-4">
+      {% for item in demo_testimonials %}
+      <div class="col-md-4">
+        <div class="surface-card surface-card-hover p-4 h-100 d-flex flex-column justify-content-between">
+          <div>
+            <i class="bi bi-quote fs-2 mb-2 d-block text-lime" aria-hidden="true"></i>
+            <p class="text-ink-body mb-3">"{{ item.quote }}"</p>
+          </div>
+          <div class="pt-3 border-top border-secondary border-opacity-25">
+            <div class="fw-bold text-ink-bright">{{ item.name }}</div>
+            <div class="small text-ink-muted">{{ item.role }}</div>
+            <div class="small fw-semibold tabular-num mt-1 text-lime">{{ item.metric }}</div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script type="module" src="{% static 'js/track-3d.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="Person performing a push-up on a mat">
+  <defs>
+    <linearGradient id="pushBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFF1E6"/>
+      <stop offset="100%" stop-color="#FEF3C7"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#pushBg)"/>
+  <circle cx="380" cy="80" r="54" fill="#FDBA74" opacity="0.28"/>
+  <circle cx="105" cy="95" r="38" fill="#C4B5FD" opacity="0.32"/>
+  <!-- Floor & Mat -->
+  <rect x="0" y="220" width="480" height="80" fill="#FDE68A" opacity="0.55"/>
+  <rect x="70" y="214" width="340" height="18" rx="9" fill="#10B981"/>
+  <!-- Motion Up/Down Arrows -->
+  <path d="M312 104 L312 72 M302 82 L312 72 L322 82" stroke="#7C3AED" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Push-up Athlete -->
+  <g transform="translate(105, 118)">
+    <!-- Legs & Feet -->
+    <line x1="16" y1="88" x2="112" y2="62" stroke="#312E81" stroke-width="14" stroke-linecap="round"/>
+    <ellipse cx="14" cy="92" rx="8" ry="12" fill="#0EA5E9"/>
+    <!-- Torso -->
+    <line x1="112" y1="62" x2="212" y2="42" stroke="#7C3AED" stroke-width="24" stroke-linecap="round"/>
+    <!-- Supporting Arm -->
+    <path d="M206 46 L216 74 L214 96" stroke="#FDBA74" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <ellipse cx="218" cy="97" rx="10" ry="4" fill="#FDBA74"/>
+    <!-- Head -->
+    <circle cx="240" cy="36" r="16" fill="#FDBA74"/>
+    <path d="M226 26 Q242 14 256 26" fill="#1E1B4B"/>
+    <circle cx="247" cy="37" r="2.2" fill="#1E1B4B"/>
+  </g>
+</svg>

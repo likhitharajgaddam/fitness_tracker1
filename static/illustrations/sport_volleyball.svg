@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="Volleyball player spiking over the net">
+  <defs>
+    <linearGradient id="vballBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFFBF5"/>
+      <stop offset="100%" stop-color="#E0F2FE"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#vballBg)"/>
+  <rect x="0" y="226" width="480" height="74" fill="#FDE68A"/>
+  <!-- Net -->
+  <line x1="296" y1="104" x2="296" y2="256" stroke="#1E293B" stroke-width="5"/>
+  <rect x="298" y="108" width="166" height="64" fill="#FFFFFF" opacity="0.65" stroke="#64748B" stroke-width="2"/>
+  <line x1="298" y1="108" x2="464" y2="108" stroke="#7C3AED" stroke-width="5"/>
+  <!-- Volleyball -->
+  <g transform="translate(274, 72)">
+    <circle cx="0" cy="0" r="19" fill="#FFFFFF" stroke="#0EA5E9" stroke-width="2.5"/>
+    <path d="M-16 -6 Q0 4 16 -6 M-6 -17 Q2 0 -6 17" stroke="#F97316" stroke-width="2.5" fill="none"/>
+  </g>
+  <!-- Jumping Spiker -->
+  <g transform="translate(132, 64)">
+    <ellipse cx="42" cy="176" rx="34" ry="6" fill="#B45309" opacity="0.2"/>
+    <path d="M36 112 L24 148 L20 166" stroke="#1E1B4B" stroke-width="12" stroke-linecap="round" fill="none"/>
+    <path d="M50 112 L62 146 L58 166" stroke="#312E81" stroke-width="12" stroke-linecap="round" fill="none"/>
+    <rect x="26" y="54" width="34" height="60" rx="14" fill="#10B981"/>
+    <path d="M56 60 L92 22" stroke="#FDBA74" stroke-width="9" stroke-linecap="round"/>
+    <circle cx="43" cy="30" r="17" fill="#FDBA74"/>
+    <path d="M27 24 Q43 10 59 24" fill="#1E1B4B"/>
+  </g>
+</svg>

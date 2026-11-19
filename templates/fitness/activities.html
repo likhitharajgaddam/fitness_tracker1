@@ -1,0 +1,153 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Fitness Activities | FitTrack{% endblock %}
+{% block topbar_title %}Fitness Activities{% endblock %}
+{% block topbar_subtitle %}Explore {{ total_available }} illustrated exercises with guided timers and muscle guides{% endblock %}
+
+{% block content %}
+<div class="{% if not request.user.is_authenticated %}container-xl py-4 py-lg-5{% endif %}">
+  <!-- Page Header -->
+  <section class="surface-tint-lavender p-4 mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+      <div class="meta-line mb-1">
+        <span class="meta-accent">Exercise Adventure Library</span>
+        <span aria-hidden="true">&middot;</span>
+        <span class="tabular-num">{{ total_available }} illustrated activities</span>
+      </div>
+      <h1 class="h2 fw-bold mb-1">Fitness Activities</h1>
+      <p class="text-secondary mb-0">
+        Filter exercises by category, difficulty, or keyword. Start an interactive guided timer or log any workout straight to your Reward Jar.
+      </p>
+    </div>
+    {% if request.user.is_authenticated %}
+    <a href="{% url 'fitness:workouts' %}#log-workout-form" class="btn btn-emerald text-nowrap">
+      <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Log Custom Workout
+    </a>
+    {% else %}
+    <a href="{% url 'fitness:signup' %}" class="btn btn-emerald text-nowrap">
+      Sign Up to Track Workouts
+    </a>
+    {% endif %}
+  </section>
+
+  <!-- Filters -->
+  <section class="surface-card p-3 p-md-4 mb-4">
+    <form method="get" action="{% url 'fitness:activities' %}" class="row g-3 align-items-end">
+      <div class="col-lg-6">
+        <label class="form-label small fw-semibold text-secondary mb-2">Category Filter</label>
+        <div class="filter-bar">
+          <a
+            href="{% url 'fitness:activities' %}{% if selected_difficulty or search_query %}?{% if selected_difficulty %}difficulty={{ selected_difficulty|urlencode }}{% endif %}{% if selected_difficulty and search_query %}&amp;{% endif %}{% if search_query %}q={{ search_query|urlencode }}{% endif %}{% endif %}"
+            class="filter-tab {% if not selected_category %}active{% endif %}"
+          >
+            All Categories
+          </a>
+          {% for cat in categories %}
+          <a
+            href="{% url 'fitness:activities' %}?category={{ cat|urlencode }}{% if selected_difficulty %}&amp;difficulty={{ selected_difficulty|urlencode }}{% endif %}{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}"
+            class="filter-tab {% if selected_category == cat %}active{% endif %}"
+          >
+            {{ cat }}
+          </a>
+          {% endfor %}
+        </div>
+        {% if selected_category %}
+        <input type="hidden" name="category" value="{{ selected_category }}" />
+        {% endif %}
+      </div>
+
+      <div class="col-sm-6 col-lg-2">
+        <label for="difficultyFilter" class="form-label small fw-semibold text-secondary">Difficulty</label>
+        <select name="difficulty" id="difficultyFilter" class="form-select" onchange="this.form.submit()">
+          <option value="">All Levels</option>
+          {% for diff in difficulties %}
+          <option value="{{ diff }}" {% if selected_difficulty == diff %}selected{% endif %}>{{ diff }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-sm-6 col-lg-4">
+        <label for="activitySearch" class="form-label small fw-semibold text-secondary">Search Activities</label>
+        <div class="input-group">
+          <input
+            type="search"
+            name="q"
+            id="activitySearch"
+            class="form-control"
+            placeholder="Search walking, yoga, plank..."
+            value="{{ search_query }}"
+          />
+          <button class="btn btn-navy" type="submit" aria-label="Search activities">
+            <i class="bi bi-search" aria-hidden="true"></i>
+          </button>
+          {% if selected_category or selected_difficulty or search_query %}
+          <a href="{% url 'fitness:activities' %}" class="btn btn-outline-navy">Reset</a>
+          {% endif %}
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <!-- Activities Grid -->
+  {% if activities %}
+  <div class="row g-3 g-lg-4">
+    {% for activity in activities %}
+    <div class="col-md-6 col-xl-4">
+      <article class="surface-card surface-card-hover h-100 d-flex flex-column">
+        <div class="card-cover-wrap">
+          <img
+            src="{% static activity.image_path %}"
+            alt="{{ activity.name }}"
+            class="card-cover-img"
+          />
+        </div>
+        <div class="p-4 flex-grow-1 d-flex flex-column justify-content-between">
+          <div>
+            <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+              <div class="meta-line">
+                <span class="meta-accent">{{ activity.category }}</span>
+                <span aria-hidden="true">&middot;</span>
+                <span>{{ activity.difficulty_level }}</span>
+              </div>
+              <span class="tabular-num small fw-bold" style="color: var(--mint-600);">{{ activity.estimated_duration }} min</span>
+            </div>
+            <h2 class="h4 fw-bold mb-1">
+              <a href="{% url 'fitness:activity_detail' activity.pk %}" class="text-decoration-none text-ink-bright">
+                {{ activity.name }}
+              </a>
+            </h2>
+            {% if activity.target_muscles %}
+            <div class="small fw-semibold mb-2" style="color: var(--purple-700);">
+              <i class="bi bi-bullseye me-1" aria-hidden="true"></i>{{ activity.target_muscles }}
+            </div>
+            {% endif %}
+            <p class="small text-secondary mb-3">{{ activity.description|truncatewords:18 }}</p>
+          </div>
+
+          <div class="pt-3 border-top d-flex justify-content-between align-items-center gap-2">
+            <a href="{% url 'fitness:activity_detail' activity.pk %}" class="btn btn-purple btn-sm flex-grow-1">
+              <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Start Activity
+            </a>
+            <a
+              href="{% url 'fitness:workouts' %}?log_activity={{ activity.name|urlencode }}&amp;duration={{ activity.estimated_duration }}#log-workout-form"
+              class="btn btn-outline-navy btn-sm"
+            >
+              Quick Log
+            </a>
+          </div>
+        </div>
+      </article>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="surface-card p-5 text-center">
+    <i class="bi bi-funnel fs-1 text-secondary mb-3 d-block" aria-hidden="true"></i>
+    <h2 class="h5 fw-bold mb-2">No matching fitness activities</h2>
+    <p class="text-secondary mb-3">Try clearing your category, difficulty, or search filters.</p>
+    <a href="{% url 'fitness:activities' %}" class="btn btn-navy btn-sm">Show All Activities</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

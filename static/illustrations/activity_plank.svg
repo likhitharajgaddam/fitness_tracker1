@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="Person holding a core forearm plank">
+  <defs>
+    <linearGradient id="plankBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ECFDF5"/>
+      <stop offset="100%" stop-color="#F3E8FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#plankBg)"/>
+  <!-- Mat -->
+  <rect x="58" y="214" width="364" height="18" rx="9" fill="#7C3AED"/>
+  <!-- Alignment Line -->
+  <line x1="92" y1="146" x2="368" y2="146" stroke="#10B981" stroke-width="2.5" stroke-dasharray="8 8" opacity="0.55"/>
+  <!-- Stopwatch Emblem -->
+  <circle cx="385" cy="74" r="26" fill="#FFFFFF" stroke="#10B981" stroke-width="4"/>
+  <line x1="385" y1="74" x2="385" y2="57" stroke="#1E1B4B" stroke-width="3" stroke-linecap="round"/>
+  <line x1="385" y1="74" x2="397" y2="78" stroke="#F97316" stroke-width="3" stroke-linecap="round"/>
+  <!-- Forearm Plank Athlete -->
+  <g transform="translate(88, 128)">
+    <!-- Legs straight to toes -->
+    <line x1="20" y1="80" x2="136" y2="58" stroke="#312E81" stroke-width="15" stroke-linecap="round"/>
+    <ellipse cx="16" cy="82" rx="7" ry="11" fill="#10B981"/>
+    <!-- Core / Torso -->
+    <line x1="136" y1="58" x2="236" y2="44" stroke="#10B981" stroke-width="24" stroke-linecap="round"/>
+    <!-- Forearm Brace -->
+    <path d="M232 46 L232 82 L262 82" stroke="#FDBA74" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- Head -->
+    <circle cx="268" cy="36" r="16" fill="#FDBA74"/>
+    <path d="M254 26 Q270 14 284 26" fill="#1E1B4B"/>
+    <circle cx="275" cy="38" r="2" fill="#1E1B4B"/>
+  </g>
+</svg>

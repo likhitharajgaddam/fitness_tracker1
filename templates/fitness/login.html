@@ -1,0 +1,109 @@
+{% extends "base_public.html" %}
+
+{% block title %}Log In | FitTrack{% endblock %}
+
+{% block content %}
+<section class="auth-split-wrapper py-5">
+  <div class="container-xl">
+    <div class="row justify-content-center">
+      <div class="col-xl-9">
+        <div class="auth-panel shadow-sm">
+          <div class="row g-0">
+            <div class="col-lg-5 auth-aside p-4 p-lg-5 d-flex flex-column justify-content-between">
+              <div>
+                <div class="meta-line mb-3">
+                  <span class="text-lime fw-bold tabular-num">MEMBER SIGN IN</span>
+                  <span aria-hidden="true">&middot;</span>
+                  <span>FITTRACK</span>
+                </div>
+                <h1 class="h2 fw-bold text-ink-bright mb-3">Welcome back to the track.</h1>
+                <p class="text-ink-muted mb-4">
+                  Sign in with your username or email to jump into your live 3D personal track, Reward Jars, FitBuddy companion, and progress analytics.
+                </p>
+              </div>
+              <div class="race-bib-card race-bib-card-straight">
+                <span class="bib-pin bib-pin-tl" aria-hidden="true"></span>
+                <span class="bib-pin bib-pin-tr" aria-hidden="true"></span>
+                <div class="race-bib-header py-1">
+                  <div class="race-bib-sub m-0">ADMIN DEMO ACCESS PASS</div>
+                </div>
+                <div class="race-bib-body py-2 px-3 small" style="color: #111513;">
+                  <div class="d-flex justify-content-between">
+                    <span>USER: <strong class="tabular-num">admin</strong></span>
+                    <span>PASS: <strong class="tabular-num">admin123</strong></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-7 p-4 p-lg-5">
+              <h2 class="h3 fw-bold mb-1">Sign In to FitTrack</h2>
+              <p class="small text-ink-muted mb-4">
+                New to FitTrack? <a href="{% url 'fitness:signup' %}" class="fw-semibold text-lime text-decoration-none">Create a free account</a>
+              </p>
+
+              <form method="post" action="{% url 'fitness:login' %}" novalidate>
+                {% csrf_token %}
+                {% if next %}<input type="hidden" name="next" value="{{ next }}" />{% endif %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2 small" role="alert">
+                  {% for err in form.non_field_errors %}<div>{{ err }}</div>{% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="mb-3">
+                  <label for="{{ form.identifier.id_for_label }}" class="form-label fw-semibold small">
+                    {{ form.identifier.label }}
+                  </label>
+                  {{ form.identifier }}
+                  {% if form.identifier.errors %}
+                  <div class="text-danger small mt-1">{{ form.identifier.errors.0 }}</div>
+                  {% endif %}
+                </div>
+
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold small mb-0">
+                      {{ form.password.label }}
+                    </label>
+                    <a href="{% url 'fitness:password_reset' %}" class="small text-success text-decoration-none fw-semibold">
+                      Forgot Password?
+                    </a>
+                  </div>
+                  <div class="input-group">
+                    {{ form.password }}
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      data-toggle-password
+                      data-target="{{ form.password.id_for_label }}"
+                      aria-label="Show password"
+                    >
+                      <i class="bi bi-eye" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% if form.password.errors %}
+                  <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+                  {% endif %}
+                </div>
+
+                <div class="form-check mb-4">
+                  {{ form.remember_me }}
+                  <label class="form-check-label small text-secondary" for="{{ form.remember_me.id_for_label }}">
+                    {{ form.remember_me.label }}
+                  </label>
+                </div>
+
+                <button type="submit" class="btn btn-emerald w-100 py-2">
+                  Sign In to Dashboard <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

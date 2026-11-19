@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="Person riding a bicycle outdoors">
+  <defs>
+    <linearGradient id="cycleSky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E0F2FE"/>
+      <stop offset="100%" stop-color="#DBEAFE"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#cycleSky)"/>
+  <!-- Distant Mountains & Road -->
+  <polygon points="0,210 95,125 190,210" fill="#BAE6FD"/>
+  <polygon points="145,210 275,105 405,210" fill="#7DD3FC"/>
+  <polygon points="315,210 420,135 480,190 480,210" fill="#BAE6FD"/>
+  <rect x="0" y="210" width="480" height="90" fill="#334155"/>
+  <line x1="20" y1="255" x2="460" y2="255" stroke="#FDE047" stroke-width="4" stroke-dasharray="28 18"/>
+  <!-- Breeze Lines -->
+  <path d="M40 96 Q75 88 110 96" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M62 118 Q95 112 126 118" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.75"/>
+  <!-- Bicycle + Rider -->
+  <g transform="translate(135, 62)">
+    <!-- Wheels -->
+    <circle cx="48" cy="158" r="38" fill="none" stroke="#1E293B" stroke-width="7"/>
+    <circle cx="48" cy="158" r="28" fill="none" stroke="#94A3B8" stroke-width="2" stroke-dasharray="6 6"/>
+    <circle cx="176" cy="158" r="38" fill="none" stroke="#1E293B" stroke-width="7"/>
+    <circle cx="176" cy="158" r="28" fill="none" stroke="#94A3B8" stroke-width="2" stroke-dasharray="6 6"/>
+    <!-- Frame -->
+    <polyline points="48,158 98,108 156,108 110,158 48,158" fill="none" stroke="#10B981" stroke-width="6" stroke-linejoin="round"/>
+    <line x1="156" y1="108" x2="176" y2="158" stroke="#10B981" stroke-width="6" stroke-linecap="round"/>
+    <line x1="98" y1="108" x2="90" y2="90" stroke="#475569" stroke-width="5" stroke-linecap="round"/>
+    <line x1="80" y1="90" x2="104" y2="90" stroke="#1E293B" stroke-width="6" stroke-linecap="round"/>
+    <path d="M150 92 L166 92 Q174 92 170 102" fill="none" stroke="#1E293B" stroke-width="5" stroke-linecap="round"/>
+    <!-- Rider Legs -->
+    <path d="M94 88 L122 128 L112 158" stroke="#312E81" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- Rider Torso -->
+    <path d="M84 88 L116 48 L138 62 L106 94 Z" fill="#7C3AED"/>
+    <!-- Rider Arm to Handlebars -->
+    <path d="M126 56 L146 80 L158 92" stroke="#FDBA74" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- Head & Helmet -->
+    <circle cx="136" cy="34" r="15" fill="#FDBA74"/>
+    <path d="M118 32 Q136 10 156 28 Z" fill="#0EA5E9"/>
+  </g>
+</svg>

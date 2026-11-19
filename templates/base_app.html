@@ -1,0 +1,288 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("fittrack_theme") === "light" ? "light" : "dark";
+          document.documentElement.setAttribute("data-theme", t);
+          document.documentElement.setAttribute("data-bs-theme", t);
+        } catch (e) {}
+        try {
+          var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          if (tz) {
+            var encoded = encodeURIComponent(tz);
+            var isHttps = window.location.protocol === "https:";
+            var attrs =
+              "; path=/; max-age=31536000" +
+              (isHttps ? "; SameSite=None; Secure; Partitioned" : "; SameSite=Lax");
+            document.cookie = "fittrack_tz=" + encoded + attrs;
+            if (isHttps && document.cookie.indexOf("fittrack_tz=") === -1) {
+              document.cookie =
+                "fittrack_tz=" + encoded + "; path=/; max-age=31536000; SameSite=None; Secure";
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <title>{% block title %}Dashboard | FitTrack{% endblock %}</title>
+    <meta
+      name="description"
+      content="FitTrack – An interactive fitness adventure. Every move counts, and every goal unlocks something."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link href="{% static 'css/style.css' %}?v=20261119-4" rel="stylesheet" />
+  </head>
+  <body>
+    <canvas id="kineticAmbientCanvas" aria-hidden="true"></canvas>
+
+    <div class="app-shell">
+      <!-- Desktop Left Sidebar -->
+      <aside class="app-sidebar d-none d-lg-flex" aria-label="Sidebar">
+        {% include "partials/sidebar_nav.html" %}
+      </aside>
+
+      <!-- Mobile Offcanvas Sidebar -->
+      <div
+        class="offcanvas offcanvas-start offcanvas-navy d-lg-none"
+        tabindex="-1"
+        id="mobileSidebar"
+        aria-labelledby="mobileSidebarLabel"
+      >
+        <div class="offcanvas-header border-bottom-themed">
+          <a class="app-brand" href="{% url 'fitness:dashboard' %}" id="mobileSidebarLabel">
+            <span class="brand-mark" aria-hidden="true">
+              <i class="bi bi-activity"></i>
+            </span>
+            <span>FitTrack</span>
+          </a>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="offcanvas"
+            aria-label="Close sidebar"
+          ></button>
+        </div>
+        <div class="offcanvas-body p-0 d-flex flex-column">
+          {% include "partials/sidebar_nav.html" with hide_brand=True %}
+        </div>
+      </div>
+
+      <!-- Main Workspace Column -->
+      <div class="app-main-column">
+        <header class="app-topbar d-flex justify-content-between align-items-center gap-3">
+          <div class="d-flex align-items-center gap-3 min-w-0">
+            <button
+              class="btn btn-outline-navy btn-sm d-lg-none"
+              type="button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#mobileSidebar"
+              aria-controls="mobileSidebar"
+              aria-label="Open navigation menu"
+            >
+              <i class="bi bi-list fs-5"></i>
+            </button>
+            <div class="min-w-0">
+              <div class="fw-bold text-ink-bright text-truncate font-display fs-5 lh-sm">
+                {% block topbar_title %}Personal Fitness Adventure{% endblock %}
+              </div>
+              <div class="small text-ink-muted d-none d-sm-block text-truncate">
+                {% block topbar_subtitle %}Every Move Counts &middot; Every Goal Unlocks Something{% endblock %}
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-2 flex-shrink-0">
+            <button
+              type="button"
+              class="hud-pill-btn"
+              data-theme-toggle
+              aria-pressed="false"
+              title="Switch between Dark Mode and Light Mode"
+            >
+              <i class="bi bi-sun-fill" aria-hidden="true"></i>
+              <span class="d-none d-sm-inline" data-theme-label>LIGHT MODE</span>
+            </button>
+
+            <button
+              type="button"
+              class="hud-pill-btn d-none d-md-inline-flex"
+              data-sound-toggle
+              aria-pressed="false"
+              title="Toggle kinetic track sound effects"
+            >
+              <i class="bi bi-volume-mute-fill" aria-hidden="true"></i>
+              <span>SOUND OFF</span>
+            </button>
+
+            <a
+              href="{% url 'fitness:workouts' %}#log-workout-form"
+              class="btn btn-lime btn-sm text-nowrap"
+            >
+              <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>
+              <span class="d-none d-sm-inline">Log Workout</span>
+              <span class="d-sm-none">Log</span>
+            </a>
+
+            <!-- User Profile Dropdown -->
+            <div class="dropdown">
+              <button
+                class="btn btn-navy d-flex align-items-center gap-2 px-2 py-1 rounded-4 dropdown-toggle"
+                type="button"
+                id="userProfileDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <span class="avatar-circle" aria-hidden="true">
+                  {% if profile %}{{ profile.initials }}{% else %}{{ request.user.username|slice:":2"|upper }}{% endif %}
+                </span>
+                <span class="d-none d-md-inline text-start">
+                  <span class="d-block small fw-bold text-ink-bright lh-1">
+                    {% if profile %}{{ profile.display_name }}{% else %}{{ request.user.username }}{% endif %}
+                  </span>
+                  <span class="d-block text-ink-muted" style="font-size: 0.72rem;">
+                    {% if request.user.is_staff %}Administrator{% else %}Adventurer{% endif %}
+                  </span>
+                </span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-lg rounded-4" aria-labelledby="userProfileDropdown">
+                <li class="px-3 py-2 border-bottom-themed">
+                  <div class="fw-bold small text-ink-bright">
+                    {% if profile %}{{ profile.display_name }}{% else %}{{ request.user.username }}{% endif %}
+                  </div>
+                  <div class="small text-ink-muted">{{ request.user.email|default:request.user.username }}</div>
+                </li>
+                <li>
+                  <a class="dropdown-item py-2" href="{% url 'fitness:rewards' %}">
+                    <i class="bi bi-award me-2 text-lime" aria-hidden="true"></i>Rewards &amp; Badges
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item py-2" href="{% url 'fitness:profile' %}">
+                    <i class="bi bi-person me-2 text-ink-muted" aria-hidden="true"></i>My Profile
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item py-2" href="{% url 'fitness:settings' %}">
+                    <i class="bi bi-sliders me-2 text-ink-muted" aria-hidden="true"></i>Settings
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item py-2" href="{% url 'fitness:analytics' %}">
+                    <i class="bi bi-graph-up-arrow me-2 text-ink-muted" aria-hidden="true"></i>Progress &amp; Analytics
+                  </a>
+                </li>
+                {% if request.user.is_staff %}
+                <li>
+                  <a class="dropdown-item py-2" href="/admin/">
+                    <i class="bi bi-shield-lock me-2 text-lime" aria-hidden="true"></i>Admin Panel
+                  </a>
+                </li>
+                {% endif %}
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <form method="post" action="{% url 'fitness:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="dropdown-item py-2 text-danger fw-semibold">
+                      <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Logout
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="app-content-area">
+          {% if messages %}
+          <div class="mb-4" aria-live="polite">
+            {% for message in messages %}
+            <div
+              class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show d-flex align-items-center gap-2 border shadow-sm rounded-4"
+              role="alert"
+            >
+              {% if message.tags == 'success' %}
+              <i class="bi bi-check-circle-fill fs-5" aria-hidden="true"></i>
+              {% elif message.tags == 'danger' %}
+              <i class="bi bi-exclamation-triangle-fill fs-5" aria-hidden="true"></i>
+              {% else %}
+              <i class="bi bi-info-circle-fill fs-5" aria-hidden="true"></i>
+              {% endif %}
+              <div>{{ message }}</div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          {% block content %}{% endblock %}
+        </main>
+
+        <footer class="app-footer py-3 px-4 mt-auto">
+          <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 small">
+            <span><strong class="text-ink-bright">FitTrack</strong> &middot; Every Move Counts</span>
+            <span>Private adventure workspace &middot; {{ request.user.username }}</span>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Shared Delete Confirmation Modal -->
+    <div
+      class="modal fade"
+      id="confirmDeleteModal"
+      tabindex="-1"
+      aria-labelledby="confirmDeleteTitle"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow rounded-4">
+          <div class="modal-header border-bottom-themed">
+            <h5 class="modal-title fw-bold text-ink-bright" id="confirmDeleteTitle">Confirm Deletion</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-ink-body">
+            Are you sure you want to delete <strong class="text-ink-bright" id="confirmDeleteItemName">this entry</strong>? This action cannot be undone.
+          </div>
+          <div class="modal-footer border-top-themed">
+            <button type="button" class="btn btn-outline-navy" data-bs-dismiss="modal">Cancel</button>
+            <form method="post" id="confirmDeleteForm" action="">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger fw-semibold rounded-3">
+                <i class="bi bi-trash me-1" aria-hidden="true"></i>Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% include "partials/fitbuddy_widget.html" %}
+    {% include "partials/celebration_modal.html" %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="{% static 'js/sound-fx.js' %}?v=20261119-4"></script>
+    <script src="{% static 'js/kinetic-fun.js' %}?v=20261119-4"></script>
+    <script src="{% static 'js/app.js' %}?v=20261119-4"></script>
+    {% block extra_scripts %}{% endblock %}
+  </body>
+</html>

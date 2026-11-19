@@ -1,0 +1,203 @@
+{% extends "base_app.html" %}
+
+{% block title %}Settings | FitTrack{% endblock %}
+{% block topbar_title %}Account &amp; Fitness Settings{% endblock %}
+{% block topbar_subtitle %}Choose your FitBuddy companion, replay the interactive guide, and manage security{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Preferences & Companion -->
+  <div class="col-lg-6">
+    <div class="surface-card p-4 h-100">
+      <h1 class="h5 fw-bold mb-1">Fitness &amp; FitBuddy Preferences</h1>
+      <p class="small text-secondary mb-4">Adjust your training level, primary goal, setting, or FitBuddy character.</p>
+
+      <form method="post" action="{% url 'fitness:settings' %}" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_preferences" />
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold small d-block mb-2">{{ pref_form.companion_choice.label }}</label>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="d-block w-100 m-0">
+                <input
+                  type="radio"
+                  name="companion_choice"
+                  value="female"
+                  class="companion-radio-input visually-hidden"
+                  {% if pref_form.companion_choice.value == 'female' or not pref_form.companion_choice.value %}checked{% endif %}
+                />
+                <div class="companion-option-card d-flex align-items-center gap-2 p-2">
+                  {% include "partials/fitbuddy_svg.html" with buddy_gender="female" buddy_state="greeting" buddy_size="48px" %}
+                  <span class="fw-bold small text-ink-bright">Nova</span>
+                </div>
+              </label>
+            </div>
+            <div class="col-6">
+              <label class="d-block w-100 m-0">
+                <input
+                  type="radio"
+                  name="companion_choice"
+                  value="male"
+                  class="companion-radio-input visually-hidden"
+                  {% if pref_form.companion_choice.value == 'male' %}checked{% endif %}
+                />
+                <div class="companion-option-card d-flex align-items-center gap-2 p-2">
+                  {% include "partials/fitbuddy_svg.html" with buddy_gender="male" buddy_state="encouragement" buddy_size="48px" %}
+                  <span class="fw-bold small text-ink-bright">Atlas</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-sm-6">
+            <label for="{{ pref_form.age.id_for_label }}" class="form-label fw-semibold small">{{ pref_form.age.label }}</label>
+            {{ pref_form.age }}
+            {% if pref_form.age.errors %}<div class="text-danger small mt-1">{{ pref_form.age.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="col-sm-6">
+            <label for="{{ pref_form.gender.id_for_label }}" class="form-label fw-semibold small">{{ pref_form.gender.label }}</label>
+            {{ pref_form.gender }}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="{{ pref_form.fitness_level.id_for_label }}" class="form-label fw-semibold small">{{ pref_form.fitness_level.label }}</label>
+          {{ pref_form.fitness_level }}
+        </div>
+        <div class="mb-3">
+          <label for="{{ pref_form.primary_goal.id_for_label }}" class="form-label fw-semibold small">{{ pref_form.primary_goal.label }}</label>
+          {{ pref_form.primary_goal }}
+        </div>
+        <div class="mb-4">
+          <label for="{{ pref_form.preferred_environment.id_for_label }}" class="form-label fw-semibold small">{{ pref_form.preferred_environment.label }}</label>
+          {{ pref_form.preferred_environment }}
+        </div>
+
+        <button type="submit" class="btn btn-emerald">
+          Save Preferences
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Appearance, Password, Onboarding Tour & Account Role -->
+  <div class="col-lg-6 d-flex flex-column gap-4">
+    <div class="surface-card p-4">
+      <h2 class="h5 fw-bold mb-1">Appearance &amp; Theme Mode</h2>
+      <p class="small text-secondary mb-3">
+        Switch between high-contrast Dark Mode and warm Light Mode across every page and chart.
+      </p>
+      <div class="row g-2">
+        <div class="col-6">
+          <button
+            type="button"
+            class="theme-choice-btn active"
+            data-set-theme="dark"
+            aria-pressed="true"
+          >
+            <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
+            <span>Dark Mode</span>
+          </button>
+        </div>
+        <div class="col-6">
+          <button
+            type="button"
+            class="theme-choice-btn"
+            data-set-theme="light"
+            aria-pressed="false"
+          >
+            <i class="bi bi-sun-fill" aria-hidden="true"></i>
+            <span>Light Mode</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="surface-tint-lavender p-4">
+      <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+        <div>
+          <h2 class="h5 fw-bold mb-1">Interactive Onboarding Guide</h2>
+          <p class="small text-secondary mb-0">
+            Want a quick walkthrough of your Reward Jars, Daily Challenges, and FitBuddy features?
+          </p>
+        </div>
+        <form method="post" action="{% url 'fitness:replay_tutorial' %}" class="flex-shrink-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-purple btn-sm text-nowrap">
+            <i class="bi bi-stars me-1" aria-hidden="true"></i>Replay FITBUDDY Guide
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="surface-card p-4">
+      <h2 class="h5 fw-bold mb-1">Change Password</h2>
+      <p class="small text-secondary mb-4">Keep your FitTrack account protected with a strong password.</p>
+
+      <form method="post" action="{% url 'fitness:settings' %}" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="action" value="change_password" />
+
+        {% if pw_form.non_field_errors %}
+        <div class="alert alert-danger py-2 small">{{ pw_form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="mb-3">
+          <label for="{{ pw_form.old_password.id_for_label }}" class="form-label fw-semibold small">Current Password</label>
+          <div class="input-group">
+            {{ pw_form.old_password }}
+            <button type="button" class="btn btn-outline-secondary" data-toggle-password data-target="{{ pw_form.old_password.id_for_label }}" aria-label="Show password">
+              <i class="bi bi-eye" aria-hidden="true"></i>
+            </button>
+          </div>
+          {% if pw_form.old_password.errors %}<div class="text-danger small mt-1">{{ pw_form.old_password.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label for="{{ pw_form.new_password1.id_for_label }}" class="form-label fw-semibold small">New Password</label>
+          <div class="input-group">
+            {{ pw_form.new_password1 }}
+            <button type="button" class="btn btn-outline-secondary" data-toggle-password data-target="{{ pw_form.new_password1.id_for_label }}" aria-label="Show password">
+              <i class="bi bi-eye" aria-hidden="true"></i>
+            </button>
+          </div>
+          {% if pw_form.new_password1.errors %}<div class="text-danger small mt-1">{{ pw_form.new_password1.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label for="{{ pw_form.new_password2.id_for_label }}" class="form-label fw-semibold small">Confirm New Password</label>
+          <div class="input-group">
+            {{ pw_form.new_password2 }}
+            <button type="button" class="btn btn-outline-secondary" data-toggle-password data-target="{{ pw_form.new_password2.id_for_label }}" aria-label="Show password">
+              <i class="bi bi-eye" aria-hidden="true"></i>
+            </button>
+          </div>
+          {% if pw_form.new_password2.errors %}<div class="text-danger small mt-1">{{ pw_form.new_password2.errors.0 }}</div>{% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-navy">
+          Update Password
+        </button>
+      </form>
+    </div>
+
+    <div class="surface-card p-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="h6 fw-bold mb-1">Account Role &amp; Access</h2>
+          <div class="small text-secondary">
+            Signed in as <strong>{{ request.user.username }}</strong> &middot; Role: <strong class="text-success">{{ account_role }}</strong>
+          </div>
+        </div>
+        {% if request.user.is_staff %}
+        <a href="/admin/" class="btn btn-outline-navy btn-sm">Open Admin Panel</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

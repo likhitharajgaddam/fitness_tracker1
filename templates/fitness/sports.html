@@ -1,0 +1,222 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Sports Ideas | FitTrack{% endblock %}
+{% block topbar_title %}Sports Ideas{% endblock %}
+{% block topbar_subtitle %}Discover {{ total_available }} illustrated indoor &amp; outdoor sports or spin a daily sport pick{% endblock %}
+
+{% block content %}
+<div class="{% if not request.user.is_authenticated %}container-xl py-4 py-lg-5{% endif %}">
+  <!-- Page Header -->
+  <section class="surface-tint-mint p-4 mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+      <div class="meta-line mb-1">
+        <span class="meta-accent">Active Recreation</span>
+        <span aria-hidden="true">&middot;</span>
+        <span class="tabular-num">{{ total_available }} sports adventures</span>
+      </div>
+      <h1 class="h2 fw-bold mb-1">Sports Ideas</h1>
+      <p class="text-secondary mb-0">
+        Explore court, field, table, and aquatic sports with custom illustrations, equipment guides, and instant workout logging.
+      </p>
+    </div>
+    {% if request.user.is_authenticated %}
+    <a href="{% url 'fitness:workouts' %}#log-workout-form" class="btn btn-emerald text-nowrap">
+      <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Record Sport Session
+    </a>
+    {% else %}
+    <a href="{% url 'fitness:signup' %}" class="btn btn-emerald text-nowrap">
+      Sign Up to Log Sessions
+    </a>
+    {% endif %}
+  </section>
+
+  <!-- Interactive "What Should I Play Today?" Discovery Card -->
+  {% if initial_pick %}
+  <section class="adventure-hero p-4 mb-4" id="sportsDiscoveryCard">
+    <div class="row g-4 align-items-center position-relative" style="z-index: 2;">
+      <div class="col-lg-7">
+        <div class="small fw-bold text-lime mb-1">
+          <i class="bi bi-stars me-1" aria-hidden="true"></i>Interactive Discovery
+        </div>
+        <h2 class="h3 fw-bold text-ink-bright mb-2">What Should I Play Today?</h2>
+        <p class="text-ink-muted small mb-3">
+          Spin a personalized sport suggestion matched to your energy mood — no page reload required.
+        </p>
+        <div class="d-flex flex-wrap gap-2">
+          <button type="button" class="btn btn-lime" id="spinSportPickerBtn">
+            <i class="bi bi-shuffle me-1" aria-hidden="true"></i>Pick a Sport for Me
+          </button>
+          <a href="{% url 'fitness:sport_detail' initial_pick.pk %}" class="btn btn-navy" id="pickerDetailLink">
+            View Guide
+          </a>
+          <a
+            href="{% url 'fitness:workouts' %}?log_activity={{ initial_pick.name|urlencode }}&amp;duration={{ initial_pick.recommended_duration }}#log-workout-form"
+            class="btn btn-outline-navy"
+            id="pickerLogLink"
+          >
+            Log This Sport
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="race-bib-card race-bib-card-straight" id="pickerSportCard">
+          <span class="bib-pin bib-pin-tl" aria-hidden="true"></span>
+          <span class="bib-pin bib-pin-tr" aria-hidden="true"></span>
+          <span class="bib-pin bib-pin-bl" aria-hidden="true"></span>
+          <span class="bib-pin bib-pin-br" aria-hidden="true"></span>
+          <div class="race-bib-header py-2 d-flex justify-content-between align-items-center px-4">
+            <span class="race-bib-sub m-0" id="pickerSportMeta">
+              {{ initial_pick.environment }} &middot; {{ initial_pick.intensity }}
+            </span>
+            <span class="tabular-num fw-bold small" style="color: #111513;" id="pickerSportDuration">
+              {{ initial_pick.recommended_duration }} min
+            </span>
+          </div>
+          <div class="race-bib-body">
+            <h3 class="h2 fw-bold mb-1" style="color: #111513;" id="pickerSportName">{{ initial_pick.name }}</h3>
+            <p class="small mb-2" style="color: #2f3833;" id="pickerSportDesc">{{ initial_pick.description|truncatewords:22 }}</p>
+            <div class="race-bib-footer mt-2 pt-2">
+              <span><strong>GEAR:</strong> <span id="pickerSportGear">{{ initial_pick.equipment_required }}</span></span>
+              <span class="race-bib-wave">PLAY</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script id="sports-picker-data" type="application/json">{{ sports_picker_json|safe }}</script>
+  </section>
+  {% endif %}
+
+  <!-- Filter Controls -->
+  <section class="surface-card p-3 p-md-4 mb-4">
+    <form method="get" action="{% url 'fitness:sports' %}" class="row g-3 align-items-end">
+      <div class="col-lg-5">
+        <label class="form-label small fw-semibold text-secondary mb-2">Venue Category</label>
+        <div class="filter-bar">
+          <a
+            href="{% url 'fitness:sports' %}{% if selected_difficulty or selected_intensity or search_query %}?{% if selected_difficulty %}difficulty={{ selected_difficulty|urlencode }}&amp;{% endif %}{% if selected_intensity %}intensity={{ selected_intensity|urlencode }}&amp;{% endif %}{% if search_query %}q={{ search_query|urlencode }}{% endif %}{% endif %}"
+            class="filter-tab {% if not selected_environment %}active{% endif %}"
+          >
+            All Venues
+          </a>
+          {% for env in environments %}
+          <a
+            href="{% url 'fitness:sports' %}?environment={{ env|urlencode }}{% if selected_difficulty %}&amp;difficulty={{ selected_difficulty|urlencode }}{% endif %}{% if selected_intensity %}&amp;intensity={{ selected_intensity|urlencode }}{% endif %}{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}"
+            class="filter-tab {% if selected_environment == env %}active{% endif %}"
+          >
+            {{ env }}
+          </a>
+          {% endfor %}
+        </div>
+        {% if selected_environment %}
+        <input type="hidden" name="environment" value="{{ selected_environment }}" />
+        {% endif %}
+      </div>
+
+      <div class="col-sm-4 col-lg-2">
+        <label for="difficultyFilter" class="form-label small fw-semibold text-secondary">Difficulty</label>
+        <select name="difficulty" id="difficultyFilter" class="form-select" onchange="this.form.submit()">
+          <option value="">All Levels</option>
+          {% for diff in difficulties %}
+          <option value="{{ diff }}" {% if selected_difficulty == diff %}selected{% endif %}>{{ diff }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-sm-4 col-lg-2">
+        <label for="intensityFilter" class="form-label small fw-semibold text-secondary">Intensity</label>
+        <select name="intensity" id="intensityFilter" class="form-select" onchange="this.form.submit()">
+          <option value="">All</option>
+          {% for level in intensities %}
+          <option value="{{ level }}" {% if selected_intensity == level %}selected{% endif %}>{{ level }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-sm-4 col-lg-3">
+        <label for="sportSearch" class="form-label small fw-semibold text-secondary">Search Sports</label>
+        <div class="input-group">
+          <input
+            type="search"
+            name="q"
+            id="sportSearch"
+            class="form-control"
+            placeholder="Badminton, tennis..."
+            value="{{ search_query }}"
+          />
+          <button class="btn btn-navy" type="submit" aria-label="Search sports">
+            <i class="bi bi-search" aria-hidden="true"></i>
+          </button>
+          {% if selected_environment or selected_difficulty or selected_intensity or search_query %}
+          <a href="{% url 'fitness:sports' %}" class="btn btn-outline-navy">Reset</a>
+          {% endif %}
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <!-- Sports Grid -->
+  {% if sports %}
+  <div class="row g-3 g-lg-4">
+    {% for sport in sports %}
+    <div class="col-md-6">
+      <article class="surface-card surface-card-hover h-100 d-flex flex-column">
+        <div class="card-cover-wrap">
+          <img src="{% static sport.image_path %}" alt="{{ sport.name }}" class="card-cover-img" />
+        </div>
+        <div class="p-4 flex-grow-1 d-flex flex-column justify-content-between">
+          <div>
+            <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+              <div class="meta-line">
+                <span class="meta-accent">{{ sport.environment }}</span>
+                <span aria-hidden="true">&middot;</span>
+                <span>{{ sport.difficulty_level }}</span>
+                <span aria-hidden="true">&middot;</span>
+                <span>{{ sport.intensity }}</span>
+              </div>
+              <span class="tabular-num small fw-bold" style="color: var(--mint-600);">{{ sport.recommended_duration }} min</span>
+            </div>
+
+            <h2 class="h4 fw-bold mb-2">
+              <a href="{% url 'fitness:sport_detail' sport.pk %}" class="text-decoration-none text-ink-bright">
+                {{ sport.name }}
+              </a>
+            </h2>
+            <p class="small text-ink-muted mb-3">{{ sport.description }}</p>
+
+            <div class="surface-tint-lavender p-3 mb-3">
+              <div class="small fw-bold text-ink-bright mb-1">
+                <i class="bi bi-heart-pulse text-lime me-1" aria-hidden="true"></i>Health Benefits
+              </div>
+              <p class="small text-ink-muted mb-0">{{ sport.benefits }}</p>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center gap-2 pt-2">
+            <a href="{% url 'fitness:sport_detail' sport.pk %}" class="btn btn-purple btn-sm flex-grow-1">
+              Getting Started Guide
+            </a>
+            <a
+              href="{% url 'fitness:workouts' %}?log_activity={{ sport.name|urlencode }}&amp;duration={{ sport.recommended_duration }}#log-workout-form"
+              class="btn btn-emerald btn-sm"
+            >
+              <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Log {{ sport.name }}
+            </a>
+          </div>
+        </div>
+      </article>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="surface-card p-5 text-center">
+    <i class="bi bi-trophy fs-1 text-secondary mb-3 d-block" aria-hidden="true"></i>
+    <h2 class="h5 fw-bold mb-2">No sports match your filters</h2>
+    <p class="text-secondary mb-3">Reset the venue, difficulty, or search filters to browse all sports ideas.</p>
+    <a href="{% url 'fitness:sports' %}" class="btn btn-navy btn-sm">Show All Sports</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

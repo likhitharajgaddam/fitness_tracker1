@@ -1,0 +1,231 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("fittrack_theme") === "light" ? "light" : "dark";
+          document.documentElement.setAttribute("data-theme", t);
+          document.documentElement.setAttribute("data-bs-theme", t);
+        } catch (e) {}
+        try {
+          var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          if (tz) {
+            var encoded = encodeURIComponent(tz);
+            var isHttps = window.location.protocol === "https:";
+            var attrs =
+              "; path=/; max-age=31536000" +
+              (isHttps ? "; SameSite=None; Secure; Partitioned" : "; SameSite=Lax");
+            document.cookie = "fittrack_tz=" + encoded + attrs;
+            if (isHttps && document.cookie.indexOf("fittrack_tz=") === -1) {
+              document.cookie =
+                "fittrack_tz=" + encoded + "; path=/; max-age=31536000; SameSite=None; Secure";
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <title>{% block title %}FitTrack – An Interactive Fitness Adventure{% endblock %}</title>
+    <meta
+      name="description"
+      content="FitTrack – Every Move Counts. Every Goal Unlocks Something. Interactive 3D night-track adventure, FitBuddy companion, reward jars, workouts, and sports."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link href="{% static 'css/style.css' %}?v=20261119-4" rel="stylesheet" />
+  </head>
+  <body class="d-flex flex-column min-vh-100">
+    {% block ambient_bg %}
+    <canvas id="kineticAmbientCanvas" aria-hidden="true"></canvas>
+    {% endblock %}
+
+    <!-- Public Top Navigation (Strict 3-Zone Contract) -->
+    <header class="sticky-top page-foreground">
+      <nav class="navbar navbar-expand-lg public-navbar" aria-label="Public navigation">
+        <div class="container-xl">
+          <a class="app-brand" href="{% url 'fitness:landing' %}">
+            <span class="brand-mark" aria-hidden="true">
+              <i class="bi bi-activity"></i>
+            </span>
+            <span>FitTrack</span>
+          </a>
+
+          <button
+            class="navbar-toggler navbar-toggler-themed"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#publicNavbar"
+            aria-controls="publicNavbar"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <i class="bi bi-list fs-4"></i>
+          </button>
+
+          <div class="collapse navbar-collapse mt-3 mt-lg-0" id="publicNavbar">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1">
+              <li class="nav-item">
+                <a
+                  class="nav-link public-nav-link {% if request.resolver_match.url_name == 'landing' %}active{% endif %}"
+                  href="{% url 'fitness:landing' %}"
+                >
+                  Home
+                </a>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link public-nav-link {% if 'activities' in request.path %}active{% endif %}"
+                  href="{% url 'fitness:activities' %}"
+                >
+                  Fitness Activities
+                </a>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link public-nav-link {% if 'sports' in request.path %}active{% endif %}"
+                  href="{% url 'fitness:sports' %}"
+                >
+                  Sports Ideas
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link public-nav-link" href="{% url 'fitness:landing' %}#about-fittrack">
+                  About
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link public-nav-link" href="{% url 'fitness:landing' %}#benefits">
+                  Benefits
+                </a>
+              </li>
+            </ul>
+
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+              <button
+                type="button"
+                class="theme-icon-btn"
+                data-theme-toggle
+                aria-pressed="false"
+                aria-label="Switch between Dark Mode and Light Mode"
+                title="Switch between Dark Mode and Light Mode"
+              >
+                <i class="bi bi-sun-fill" aria-hidden="true"></i>
+              </button>
+              <a href="{% url 'fitness:login' %}" class="btn btn-outline-navy btn-sm px-3 py-2 text-nowrap">
+                Log In
+              </a>
+              <a href="{% url 'fitness:signup' %}" class="btn btn-lime btn-sm px-3 py-2 text-nowrap">
+                Sign Up Free
+              </a>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="flex-grow-1 page-foreground">
+      {% if messages %}
+      <div class="container-xl pt-4" aria-live="polite">
+        {% for message in messages %}
+        <div
+          class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show d-flex align-items-center gap-2 border shadow-sm rounded-4"
+          role="alert"
+        >
+          {% if message.tags == 'success' %}
+          <i class="bi bi-check-circle-fill fs-5" aria-hidden="true"></i>
+          {% elif message.tags == 'danger' %}
+          <i class="bi bi-exclamation-triangle-fill fs-5" aria-hidden="true"></i>
+          {% else %}
+          <i class="bi bi-info-circle-fill fs-5" aria-hidden="true"></i>
+          {% endif %}
+          <div>{{ message }}</div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Public Footer -->
+    <footer class="app-footer py-5 mt-auto page-foreground">
+      <div class="container-xl">
+        <div class="row g-4 pb-4 border-bottom-themed">
+          <div class="col-lg-4">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="brand-mark" aria-hidden="true">
+                <i class="bi bi-activity"></i>
+              </span>
+              <span class="font-display fw-bold fs-4 text-ink-bright text-uppercase">FitTrack</span>
+            </div>
+            <p class="small text-ink-muted mb-3">
+              FitTrack – Every Move Counts. Every Goal Unlocks Something. Explore guided activities, sports adventures, animated reward jars, and your FitBuddy companion.
+            </p>
+            <button
+              type="button"
+              class="hud-pill-btn"
+              data-theme-toggle
+              aria-pressed="false"
+              title="Switch between Dark Mode and Light Mode"
+            >
+              <i class="bi bi-sun-fill" aria-hidden="true"></i>
+              <span data-theme-label>LIGHT MODE</span>
+            </button>
+          </div>
+          <div class="col-6 col-lg-2">
+            <h3 class="h6 fw-bold text-ink-bright text-uppercase mb-2">Explore</h3>
+            <ul class="list-unstyled small d-flex flex-column gap-1 mb-0">
+              <li><a href="{% url 'fitness:landing' %}" class="text-decoration-none">Home</a></li>
+              <li><a href="{% url 'fitness:activities' %}" class="text-decoration-none">Fitness Activities</a></li>
+              <li><a href="{% url 'fitness:sports' %}" class="text-decoration-none">Sports Ideas</a></li>
+            </ul>
+          </div>
+          <div class="col-6 col-lg-3">
+            <h3 class="h6 fw-bold text-ink-bright text-uppercase mb-2">Platform</h3>
+            <ul class="list-unstyled small d-flex flex-column gap-1 mb-0">
+              <li><a href="{% url 'fitness:signup' %}" class="text-decoration-none">Create Account</a></li>
+              <li><a href="{% url 'fitness:login' %}" class="text-decoration-none">Member Login</a></li>
+              <li><a href="{% url 'fitness:password_reset' %}" class="text-decoration-none">Reset Password</a></li>
+              <li><a href="/admin/" class="text-decoration-none">Administrator Portal</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-3">
+            <h3 class="h6 fw-bold text-ink-bright text-uppercase mb-2">Contact</h3>
+            <ul class="list-unstyled small text-ink-muted d-flex flex-column gap-1 mb-0">
+              <li><i class="bi bi-envelope me-1 text-lime" aria-hidden="true"></i>support@fittrack.local</li>
+              <li><i class="bi bi-geo-alt me-1 text-lime" aria-hidden="true"></i>Campus Wellness &amp; Athletics Center</li>
+              <li><i class="bi bi-clock me-1 text-lime" aria-hidden="true"></i>Mon – Sat · 06:00 – 21:00</li>
+            </ul>
+          </div>
+        </div>
+        <div class="pt-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 small text-ink-muted">
+          <span>&copy; 2026 FitTrack &middot; Your Interactive Fitness Companion</span>
+          <span>Built with Django, Three.js WebGL, Bootstrap 5 &amp; Chart.js</span>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/sound-fx.js' %}?v=20261119-4"></script>
+    <script src="{% static 'js/kinetic-fun.js' %}?v=20261119-4"></script>
+    <script src="{% static 'js/app.js' %}?v=20261119-4"></script>
+    {% block extra_scripts %}{% endblock %}
+  </body>
+</html>

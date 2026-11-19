@@ -1,0 +1,123 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}{{ sport.name }} | Sports Ideas | FitTrack{% endblock %}
+{% block topbar_title %}{{ sport.name }}{% endblock %}
+{% block topbar_subtitle %}{{ sport.environment }} &middot; {{ sport.difficulty_level }} &middot; {{ sport.recommended_duration }} min{% endblock %}
+
+{% block content %}
+<div class="{% if not request.user.is_authenticated %}container-xl py-4 py-lg-5{% endif %}">
+  <div class="mb-3">
+    <a href="{% url 'fitness:sports' %}" class="text-decoration-none small fw-semibold text-secondary">
+      <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Back to Sports Ideas
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="surface-card p-4 p-lg-5">
+        <div class="detail-hero-img-wrap mb-4">
+          <img src="{% static sport.image_path %}" alt="{{ sport.name }}" class="detail-hero-img" />
+        </div>
+
+        <div class="meta-line mb-2">
+          <span class="meta-accent">{{ sport.environment }}</span>
+          <span aria-hidden="true">&middot;</span>
+          <span>{{ sport.difficulty_level }} Level</span>
+          <span aria-hidden="true">&middot;</span>
+          <span>{{ sport.intensity }} Intensity</span>
+        </div>
+
+        <h1 class="h2 fw-bold mb-3">{{ sport.name }}</h1>
+        <p class="text-secondary mb-4">{{ sport.description }}</p>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="p-3 rounded-4 surface-tint-mint h-100">
+              <h2 class="h5 fw-bold text-ink-bright mb-2">
+                <i class="bi bi-heart-pulse text-lime me-2" aria-hidden="true"></i>Health Benefits
+              </h2>
+              <p class="small text-ink-body mb-0">{{ sport.benefits }}</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 rounded-4 surface-tint-sky h-100">
+              <h2 class="h5 fw-bold text-ink-bright mb-2">
+                <i class="bi bi-bag-check text-lime me-2" aria-hidden="true"></i>Required Equipment
+              </h2>
+              <p class="small text-ink-body mb-0">{{ sport.equipment_required|default:"Comfortable athletic shoes and hydration." }}</p>
+            </div>
+          </div>
+        </div>
+
+        {% if sport.instruction_steps %}
+        <div>
+          <h2 class="h4 fw-bold mb-3">Getting Started Instructions</h2>
+          <div class="d-flex flex-column gap-2">
+            {% for step in sport.instruction_steps %}
+            <div class="p-3 surface-step-item small d-flex align-items-start gap-2">
+              <span class="fw-bold tabular-num text-lime">{{ forloop.counter }}.</span>
+              <span>{{ step }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="surface-card p-4 mb-4">
+        <h2 class="h5 fw-bold mb-3">Sport Details</h2>
+        <div class="d-flex flex-column gap-2 small mb-4">
+          <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-25">
+            <span class="text-ink-muted">Recommended Duration</span>
+            <strong class="tabular-num text-lime">{{ sport.recommended_duration }} min</strong>
+          </div>
+          <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-25">
+            <span class="text-ink-muted">Classification</span>
+            <strong class="text-ink-bright">{{ sport.environment }}</strong>
+          </div>
+          <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-25">
+            <span class="text-ink-muted">Difficulty Level</span>
+            <strong class="text-ink-bright">{{ sport.difficulty_level }}</strong>
+          </div>
+          <div class="d-flex justify-content-between py-2">
+            <span class="text-ink-muted">Intensity</span>
+            <strong class="text-ink-bright">{{ sport.intensity }}</strong>
+          </div>
+        </div>
+
+        <a
+          href="{% url 'fitness:workouts' %}?log_activity={{ sport.name|urlencode }}&amp;duration={{ sport.recommended_duration }}#log-workout-form"
+          class="btn btn-lime w-100 mb-2"
+        >
+          <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Log {{ sport.name }} Session
+        </a>
+        {% if not request.user.is_authenticated %}
+        <div class="small text-ink-muted text-center">
+          Sign in or register to save sessions to your personal log.
+        </div>
+        {% endif %}
+      </div>
+
+      {% if related_sports %}
+      <div class="surface-card p-4">
+        <h2 class="h5 fw-bold mb-3">Other Sports Ideas</h2>
+        <div class="d-flex flex-column gap-2">
+          {% for rel in related_sports %}
+          <a
+            href="{% url 'fitness:sport_detail' rel.pk %}"
+            class="d-flex justify-content-between align-items-center p-2 surface-list-item text-decoration-none"
+          >
+            <span class="fw-semibold small">{{ rel.name }}</span>
+            <span class="small text-lime tabular-num">{{ rel.recommended_duration }} min</span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base_public.html" %}
+
+{% block title %}Session Security Check | FitTrack{% endblock %}
+
+{% block content %}
+<section class="auth-split-wrapper py-5">
+  <div class="container-xl">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="surface-card p-4 p-lg-5 text-center shadow-sm">
+          <span class="icon-tile-peach mx-auto mb-3" aria-hidden="true">
+            <i class="bi bi-shield-exclamation"></i>
+          </span>
+          <h1 class="h4 fw-bold text-ink-bright mb-2">Security Token Expired</h1>
+          <p class="small text-ink-muted mb-4">
+            Your form security token expired or your browser blocked cookies for this session. Please refresh the sign-in page and try again.
+          </p>
+          <div class="d-flex flex-wrap justify-content-center gap-2">
+            <a href="{% url 'fitness:login' %}" class="btn btn-lime px-4">
+              <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Return to Sign In
+            </a>
+            <a href="{% url 'fitness:landing' %}" class="btn btn-outline-navy px-4">
+              Back to Home
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

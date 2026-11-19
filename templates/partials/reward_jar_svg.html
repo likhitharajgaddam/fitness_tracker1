@@ -1,0 +1,236 @@
+{% load fittrack_extras %}
+{% comment %}
+Renders any of the 6 My Fitness Reward Jar SVG containers driven by real DB-calculated progress_percent (0..100).
+Expects: container_type ('popcorn'|'juice'|'bottle'|'flower'|'treasure'|'fishtank'),
+progress_percent (0..100), theme_color ('purple'|'mint'|'peach'|'sky'), jar_id (unique suffix), size ('lg'|'md')
+{% endcomment %}
+<div class="reward-jar-stage" data-jar-type="{{ container_type }}" data-progress="{{ progress_percent }}">
+  <span class="jar-percent-pill tabular-num" data-jar-percent>{{ progress_percent }}%</span>
+  {% if container_type == 'popcorn' %}
+  <svg viewBox="0 0 140 150" class="reward-jar-svg {% if size == 'lg' %}reward-jar-svg-lg{% endif %}" role="img" aria-label="Popcorn Bucket at {{ progress_percent }} percent">
+    <!-- Popcorn Kernels Layer (progressive >0 / 25 / 50 / 75 / 100%) -->
+    {% if progress_percent > 0 %}
+    <g class="jar-pop-layer">
+      <circle cx="58" cy="108" r="9" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+      <circle cx="76" cy="108" r="9.5" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    </g>
+    {% endif %}
+    {% if progress_percent >= 25 %}
+    <g class="jar-pop-layer">
+      <circle cx="52" cy="96" r="10" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+      <circle cx="70" cy="94" r="11" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+      <circle cx="88" cy="96" r="10" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+    </g>
+    {% endif %}
+    {% if progress_percent >= 50 %}
+    <g class="jar-pop-layer">
+      <circle cx="48" cy="78" r="11" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+      <circle cx="66" cy="74" r="12" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+      <circle cx="86" cy="76" r="11" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    </g>
+    {% endif %}
+    {% if progress_percent >= 75 %}
+    <g class="jar-pop-layer">
+      <circle cx="44" cy="60" r="12" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+      <circle cx="62" cy="56" r="13" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+      <circle cx="80" cy="57" r="12" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+      <circle cx="96" cy="61" r="11" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    </g>
+    {% endif %}
+    {% if progress_percent >= 100 %}
+    <g class="jar-pop-active">
+      <circle cx="55" cy="40" r="11" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+      <circle cx="74" cy="36" r="12" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+      <circle cx="90" cy="43" r="10" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+      <circle cx="40" cy="30" r="5" fill="#7C3AED" class="jar-sparkle"/>
+      <circle cx="104" cy="28" r="5" fill="#10B981" class="jar-sparkle"/>
+    </g>
+    {% endif %}
+    <!-- Striped Bucket -->
+    <polygon points="34,62 106,62 96,134 44,134" fill="#FFFFFF" stroke="#1E1B4B" stroke-width="2.5"/>
+    <polygon points="48,62 62,62 59,134 50,134" fill="#F97316"/>
+    <polygon points="78,62 92,62 87,134 78,134" fill="#7C3AED"/>
+    <rect x="30" y="56" width="80" height="10" rx="5" fill="#1E1B4B"/>
+    <text x="70" y="106" text-anchor="middle" font-size="11" font-weight="800" fill="#1E1B4B">{{ progress_percent }}%</text>
+  </svg>
+
+  {% elif container_type == 'juice' %}
+  {% liquid_rect_y progress_percent 38 92 as jy %}
+  {% liquid_rect_h progress_percent 92 as jh %}
+  <svg viewBox="0 0 140 150" class="reward-jar-svg {% if size == 'lg' %}reward-jar-svg-lg{% endif %}" role="img" aria-label="Juice Glass at {{ progress_percent }} percent">
+    <defs>
+      <clipPath id="juiceClip-{{ jar_id }}">
+        <polygon points="42,38 98,38 90,130 50,130"/>
+      </clipPath>
+    </defs>
+    <!-- Straw & Citrus Rim -->
+    <path d="M84 44 L98 16 L112 18" stroke="#7C3AED" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="96" cy="38" r="13" fill="#FDBA74" stroke="#EA580C" stroke-width="2"/>
+    <circle cx="96" cy="38" r="8" fill="#FEF3C7"/>
+    <!-- Glass Body -->
+    <polygon points="40,36 100,36 91,132 49,132" fill="#FFFFFF" stroke="#1E1B4B" stroke-width="2.5"/>
+    <g clip-path="url(#juiceClip-{{ jar_id }})">
+      {% if progress_percent > 0 %}
+      <g class="jar-fill-group" data-fill-percent="{{ progress_percent }}">
+        <rect x="34" y="{{ jy }}" width="76" height="{{ jh|add:10 }}" fill="#FB923C"/>
+        <path class="jar-wave" d="M32 {{ jy }} Q52 {{ jy|add:-5 }} 72 {{ jy }} T116 {{ jy }} L116 140 L32 140 Z" fill="#F97316"/>
+        <circle cx="62" cy="{{ jy|add:16 }}" r="3.5" fill="#FEF3C7" class="jar-bubble"/>
+        <circle cx="78" cy="{{ jy|add:24 }}" r="2.8" fill="#FEF3C7" class="jar-bubble-delay"/>
+      </g>
+      {% endif %}
+    </g>
+    <polygon points="40,36 100,36 91,132 49,132" fill="none" stroke="#1E1B4B" stroke-width="2.5"/>
+    {% if progress_percent >= 100 %}
+    <circle cx="40" cy="24" r="4.5" fill="#10B981" class="jar-sparkle"/>
+    <circle cx="106" cy="26" r="4.5" fill="#7C3AED" class="jar-sparkle"/>
+    {% endif %}
+  </svg>
+
+  {% elif container_type == 'bottle' %}
+  {% liquid_rect_y progress_percent 44 86 as by %}
+  {% liquid_rect_h progress_percent 86 as bh %}
+  <svg viewBox="0 0 140 150" class="reward-jar-svg {% if size == 'lg' %}reward-jar-svg-lg{% endif %}" role="img" aria-label="Water Bottle at {{ progress_percent }} percent">
+    <defs>
+      <clipPath id="bottleClip-{{ jar_id }}">
+        <rect x="44" y="44" width="52" height="86" rx="14"/>
+      </clipPath>
+    </defs>
+    <!-- Cap & Neck -->
+    <rect x="54" y="18" width="32" height="14" rx="5" fill="#7C3AED" stroke="#1E1B4B" stroke-width="2"/>
+    <rect x="58" y="32" width="24" height="12" fill="#E0F2FE" stroke="#1E1B4B" stroke-width="2"/>
+    <!-- Flask -->
+    <rect x="44" y="44" width="52" height="86" rx="14" fill="#FFFFFF" stroke="#1E1B4B" stroke-width="2.5"/>
+    <g clip-path="url(#bottleClip-{{ jar_id }})">
+      {% if progress_percent > 0 %}
+      <g class="jar-fill-group" data-fill-percent="{{ progress_percent }}">
+        <rect x="40" y="{{ by }}" width="60" height="{{ bh|add:10 }}" fill="#38BDF8"/>
+        <path class="jar-wave" d="M36 {{ by }} Q54 {{ by|add:-4 }} 72 {{ by }} T110 {{ by }} L110 135 L36 135 Z" fill="#0EA5E9"/>
+        <circle cx="58" cy="{{ by|add:14 }}" r="3" fill="#E0F2FE" class="jar-bubble"/>
+        <circle cx="76" cy="{{ by|add:22 }}" r="2.3" fill="#E0F2FE" class="jar-bubble-delay"/>
+      </g>
+      {% endif %}
+    </g>
+    <rect x="44" y="44" width="52" height="86" rx="14" fill="none" stroke="#1E1B4B" stroke-width="2.5"/>
+    <!-- Measurement Ticks (75%, 50%, 25%) -->
+    <line x1="82" y1="66" x2="90" y2="66" stroke="#1E1B4B" stroke-width="2" opacity="0.45"/>
+    <line x1="82" y1="87" x2="90" y2="87" stroke="#1E1B4B" stroke-width="2" opacity="0.45"/>
+    <line x1="82" y1="108" x2="90" y2="108" stroke="#1E1B4B" stroke-width="2" opacity="0.45"/>
+    {% if progress_percent >= 100 %}
+    <circle cx="36" cy="40" r="4.5" fill="#10B981" class="jar-sparkle"/>
+    <circle cx="105" cy="44" r="4.5" fill="#F97316" class="jar-sparkle"/>
+    {% endif %}
+  </svg>
+
+  {% elif container_type == 'flower' %}
+  <svg viewBox="0 0 140 150" class="reward-jar-svg {% if size == 'lg' %}reward-jar-svg-lg{% endif %}" role="img" aria-label="Flower Pot at {{ progress_percent }} percent">
+    <!-- Growth Stages -->
+    {% if progress_percent == 0 %}
+    <ellipse cx="70" cy="94" rx="8" ry="5" fill="#92400E"/>
+    {% elif progress_percent < 40 %}
+    <path d="M70 96 Q70 76 70 68" stroke="#10B981" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M70 74 Q56 64 52 74 Q64 82 70 74 Z" fill="#34D399"/>
+    {% elif progress_percent < 85 %}
+    <path d="M70 96 Q68 68 70 50" stroke="#059669" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M70 78 Q50 66 48 78 Q62 86 70 78 Z" fill="#10B981"/>
+    <path d="M70 66 Q90 54 92 66 Q78 74 70 66 Z" fill="#34D399"/>
+    <circle cx="70" cy="46" r="8" fill="#C4B5FD" stroke="#7C3AED" stroke-width="2"/>
+    {% else %}
+    <g class="jar-flower-bloom">
+      <path d="M70 96 Q68 66 70 42" stroke="#059669" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+      <path d="M70 78 Q48 66 46 78 Q60 88 70 78 Z" fill="#10B981"/>
+      <path d="M70 68 Q92 56 94 68 Q80 78 70 68 Z" fill="#34D399"/>
+      <!-- Full Bloom -->
+      <circle cx="70" cy="26" r="10" fill="#A78BFA"/>
+      <circle cx="84" cy="36" r="10" fill="#FDBA74"/>
+      <circle cx="79" cy="50" r="10" fill="#A78BFA"/>
+      <circle cx="61" cy="50" r="10" fill="#FDBA74"/>
+      <circle cx="56" cy="36" r="10" fill="#A78BFA"/>
+      <circle cx="70" cy="39" r="9" fill="#FDE047" stroke="#F59E0B" stroke-width="2"/>
+    </g>
+    {% if progress_percent >= 100 %}
+    <circle cx="38" cy="30" r="4" fill="#10B981" class="jar-sparkle"/>
+    <circle cx="102" cy="28" r="4" fill="#7C3AED" class="jar-sparkle"/>
+    {% endif %}
+    {% endif %}
+    <!-- Terracotta Pot -->
+    <ellipse cx="70" cy="96" rx="34" ry="7" fill="#78350F"/>
+    <polygon points="38,98 102,98 92,136 48,136" fill="#FB923C" stroke="#1E1B4B" stroke-width="2.5"/>
+    <rect x="33" y="92" width="74" height="10" rx="5" fill="#F97316" stroke="#1E1B4B" stroke-width="2.5"/>
+  </svg>
+
+  {% elif container_type == 'treasure' %}
+  <svg viewBox="0 0 140 150" class="reward-jar-svg {% if size == 'lg' %}reward-jar-svg-lg{% endif %}" role="img" aria-label="Treasure Chest at {{ progress_percent }} percent">
+    <!-- Progressive Glow & Coins/Gems (>0%, >=50%, 100%) -->
+    {% if progress_percent >= 100 %}
+    <circle cx="70" cy="68" r="38" fill="#FDE047" opacity="0.28" class="jar-sparkle"/>
+    <polygon points="56,74 64,58 72,74" fill="#38BDF8" stroke="#1E1B4B" stroke-width="1.5"/>
+    <polygon points="72,74 82,56 90,74" fill="#A78BFA" stroke="#1E1B4B" stroke-width="1.5"/>
+    <circle cx="68" cy="75" r="7" fill="#FDE047" stroke="#D97706" stroke-width="1.5"/>
+    {% elif progress_percent >= 50 %}
+    <circle cx="70" cy="72" r="24" fill="#FDE047" opacity="0.22" class="jar-sparkle"/>
+    <circle cx="62" cy="75" r="5.5" fill="#FDE047" stroke="#D97706" stroke-width="1.3"/>
+    <circle cx="78" cy="75" r="5.5" fill="#FDE047" stroke="#D97706" stroke-width="1.3"/>
+    {% elif progress_percent > 0 %}
+    <ellipse cx="70" cy="76" rx="28" ry="5" fill="#FDE047" opacity="0.45"/>
+    {% endif %}
+    <!-- Chest Lid (Tilts open proportionally) -->
+    <g {% if progress_percent >= 100 %}transform="translate(-4, -18) rotate(-18 32 76)"{% elif progress_percent >= 50 %}transform="translate(-2, -8) rotate(-9 32 76)"{% elif progress_percent > 0 %}transform="translate(-1, -3) rotate(-4 32 76)"{% endif %}>
+      <path d="M30 76 Q30 44 70 44 Q110 44 110 76 Z" fill="#D97706" stroke="#1E1B4B" stroke-width="2.5"/>
+      <path d="M52 46 L52 76 M88 46 L88 76" stroke="#FDE047" stroke-width="5"/>
+    </g>
+    <!-- Chest Base -->
+    <rect x="28" y="76" width="84" height="52" rx="8" fill="#B45309" stroke="#1E1B4B" stroke-width="2.5"/>
+    <rect x="49" y="76" width="6" height="52" fill="#FDE047"/>
+    <rect x="85" y="76" width="6" height="52" fill="#FDE047"/>
+    <!-- Lock -->
+    <rect x="61" y="74" width="18" height="20" rx="5" fill="{% if progress_percent >= 100 %}#10B981{% else %}#FDE047{% endif %}" stroke="#1E1B4B" stroke-width="2"/>
+    <circle cx="70" cy="84" r="3" fill="#1E1B4B"/>
+  </svg>
+
+  {% else %}
+  <!-- Fish Tank -->
+  {% liquid_rect_y progress_percent 38 80 as fy %}
+  {% liquid_rect_h progress_percent 80 as fh %}
+  <svg viewBox="0 0 140 150" class="reward-jar-svg {% if size == 'lg' %}reward-jar-svg-lg{% endif %}" role="img" aria-label="Fish Tank at {{ progress_percent }} percent">
+    <defs>
+      <clipPath id="tankClip-{{ jar_id }}">
+        <rect x="26" y="38" width="88" height="90" rx="16"/>
+      </clipPath>
+    </defs>
+    <rect x="26" y="38" width="88" height="90" rx="16" fill="#FFFFFF" stroke="#1E1B4B" stroke-width="2.5"/>
+    <g clip-path="url(#tankClip-{{ jar_id }})">
+      <!-- Gravel -->
+      <rect x="24" y="114" width="92" height="16" fill="#FDE68A"/>
+      {% if progress_percent > 0 %}
+      <g class="jar-fill-group" data-fill-percent="{{ progress_percent }}">
+        <rect x="24" y="{{ fy }}" width="92" height="{{ fh|add:12 }}" fill="#BAE6FD"/>
+        <path class="jar-wave" d="M20 {{ fy }} Q44 {{ fy|add:-4 }} 68 {{ fy }} T122 {{ fy }} L122 130 L20 130 Z" fill="#7DD3FC"/>
+        <!-- Seaweed -->
+        <path d="M40 116 Q34 100 42 86" stroke="#10B981" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <path d="M98 116 Q104 98 96 84" stroke="#059669" stroke-width="4" stroke-linecap="round" fill="none"/>
+      </g>
+      {% endif %}
+      <!-- Fish appear & swim actively as progress climbs -->
+      {% if progress_percent >= 20 %}
+      <g class="jar-fish">
+        <ellipse cx="62" cy="88" rx="10" ry="6" fill="#F97316"/>
+        <polygon points="52,88 44,82 44,94" fill="#FB923C"/>
+        <circle cx="67" cy="87" r="1.5" fill="#1E1B4B"/>
+      </g>
+      {% endif %}
+      {% if progress_percent >= 65 %}
+      <g class="jar-fish" style="animation-delay: 0.7s;">
+        <ellipse cx="82" cy="68" rx="9" ry="5.5" fill="#7C3AED"/>
+        <polygon points="91,68 98,63 98,73" fill="#A78BFA"/>
+        <circle cx="78" cy="67" r="1.4" fill="#FFFFFF"/>
+      </g>
+      {% endif %}
+    </g>
+    <rect x="26" y="38" width="88" height="90" rx="16" fill="none" stroke="#1E1B4B" stroke-width="2.5"/>
+    {% if progress_percent >= 100 %}
+    <circle cx="32" cy="26" r="4" fill="#0EA5E9" class="jar-sparkle"/>
+    <circle cx="108" cy="28" r="4" fill="#10B981" class="jar-sparkle"/>
+    {% endif %}
+  </svg>
+  {% endif %}
+</div>

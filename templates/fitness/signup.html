@@ -1,0 +1,133 @@
+{% extends "base_public.html" %}
+
+{% block title %}Create Account | FitTrack{% endblock %}
+
+{% block content %}
+<section class="auth-split-wrapper py-5">
+  <div class="container-xl">
+    <div class="row justify-content-center">
+      <div class="col-xl-10">
+        <div class="auth-panel shadow-sm">
+          <div class="row g-0">
+            <div class="col-lg-5 auth-aside p-4 p-lg-5 d-flex flex-column justify-content-between">
+              <div>
+                <div class="meta-line mb-3">
+                  <span class="text-lime fw-bold tabular-num">STEP 1 OF 2</span>
+                  <span aria-hidden="true">&middot;</span>
+                  <span>PIN YOUR RACE BIB</span>
+                </div>
+                <h1 class="h2 fw-bold text-ink-bright mb-3">Start your personal FitTrack adventure.</h1>
+                <p class="text-ink-muted mb-4">
+                  Register in under a minute to unlock your live 3D personal track, FitBuddy companion, 6 animated Reward Jars, and 8 achievement badges.
+                </p>
+              </div>
+              <div class="d-flex flex-column gap-2 small text-ink-body">
+                <div><i class="bi bi-check-circle-fill text-lime me-2" aria-hidden="true"></i>Live 3D track arena &amp; personalized Athlete Bib</div>
+                <div><i class="bi bi-check-circle-fill text-lime me-2" aria-hidden="true"></i>Private workout history &amp; progress charts</div>
+                <div><i class="bi bi-check-circle-fill text-lime me-2" aria-hidden="true"></i>Animated daily &amp; weekly Reward Jar goals</div>
+              </div>
+            </div>
+
+            <div class="col-lg-7 p-4 p-lg-5">
+              <h2 class="h3 fw-bold mb-1">Create Your Account</h2>
+              <p class="small text-ink-muted mb-4">
+                Already have an account? <a href="{% url 'fitness:login' %}" class="fw-semibold text-lime text-decoration-none">Log in here</a>
+              </p>
+
+              <form method="post" action="{% url 'fitness:signup' %}" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2 small" role="alert">
+                  {% for err in form.non_field_errors %}<div>{{ err }}</div>{% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="mb-3">
+                  <label for="{{ form.full_name.id_for_label }}" class="form-label fw-semibold small">
+                    {{ form.full_name.label }} <span class="text-danger">*</span>
+                  </label>
+                  {{ form.full_name }}
+                  {% if form.full_name.errors %}
+                  <div class="text-danger small mt-1">{{ form.full_name.errors.0 }}</div>
+                  {% endif %}
+                </div>
+
+                <div class="row g-3 mb-3">
+                  <div class="col-sm-6">
+                    <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold small">
+                      {{ form.username.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                    <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+                    {% endif %}
+                  </div>
+                  <div class="col-sm-6">
+                    <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold small">
+                      {{ form.email.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold small">
+                    {{ form.password.label }} <span class="text-danger">*</span>
+                  </label>
+                  <div class="input-group">
+                    {{ form.password }}
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      data-toggle-password
+                      data-target="{{ form.password.id_for_label }}"
+                      aria-label="Show password"
+                    >
+                      <i class="bi bi-eye" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  <div class="form-text">Use at least 8 characters including letters and numbers.</div>
+                  {% if form.password.errors %}
+                  <div class="text-danger small mt-1">
+                    {% for err in form.password.errors %}<div>{{ err }}</div>{% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+
+                <div class="mb-4">
+                  <label for="{{ form.confirm_password.id_for_label }}" class="form-label fw-semibold small">
+                    {{ form.confirm_password.label }} <span class="text-danger">*</span>
+                  </label>
+                  <div class="input-group">
+                    {{ form.confirm_password }}
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      data-toggle-password
+                      data-target="{{ form.confirm_password.id_for_label }}"
+                      aria-label="Show password"
+                    >
+                      <i class="bi bi-eye" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  {% if form.confirm_password.errors %}
+                  <div class="text-danger small mt-1">{{ form.confirm_password.errors.0 }}</div>
+                  {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-emerald w-100 py-2">
+                  Create Account &amp; Continue <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

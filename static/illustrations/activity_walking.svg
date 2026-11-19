@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="Person walking outdoors in a park">
+  <defs>
+    <linearGradient id="walkSky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E0F2FE"/>
+      <stop offset="100%" stop-color="#ECFDF5"/>
+    </linearGradient>
+    <linearGradient id="walkPath" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#FDBA74"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#walkSky)"/>
+  <circle cx="390" cy="64" r="32" fill="#FDE047" opacity="0.85"/>
+  <path d="M55 75 Q70 58 92 65 Q106 50 128 60 Q146 62 146 78 L52 78 Z" fill="#FFFFFF" opacity="0.9"/>
+  <path d="M230 52 Q245 38 265 44 Q280 32 298 44 Q314 48 310 60 L226 60 Z" fill="#FFFFFF" opacity="0.85"/>
+  <!-- Hills & Trees -->
+  <path d="M0 210 Q130 150 260 205 T480 185 L480 300 L0 300 Z" fill="#A7F3D0"/>
+  <path d="M0 230 Q180 190 340 230 T480 215 L480 300 L0 300 Z" fill="#34D399"/>
+  <!-- Park Trees -->
+  <rect x="74" y="138" width="10" height="44" rx="4" fill="#78350F"/>
+  <circle cx="79" cy="122" r="28" fill="#10B981"/>
+  <circle cx="96" cy="132" r="20" fill="#059669"/>
+  <rect x="386" y="148" width="10" height="42" rx="4" fill="#78350F"/>
+  <circle cx="391" cy="130" r="25" fill="#10B981"/>
+  <!-- Winding Trail -->
+  <path d="M0 278 Q170 230 270 250 T480 235 L480 272 Q350 288 235 276 T0 300 Z" fill="url(#walkPath)"/>
+  <!-- Walking Person -->
+  <g transform="translate(205, 84)">
+    <ellipse cx="32" cy="176" rx="34" ry="7" fill="#065F46" opacity="0.18"/>
+    <!-- Back Leg -->
+    <path d="M26 112 L8 144 L-4 170" stroke="#312E81" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <ellipse cx="-8" cy="172" rx="11" ry="5" fill="#FFFFFF"/>
+    <!-- Front Leg -->
+    <path d="M36 112 L52 142 L68 168" stroke="#4338CA" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <ellipse cx="73" cy="170" rx="12" ry="5" fill="#FFFFFF"/>
+    <!-- Torso -->
+    <rect x="18" y="54" width="28" height="60" rx="13" fill="#7C3AED"/>
+    <!-- Swinging Arms -->
+    <path d="M22 64 L4 88 L12 106" stroke="#FDBA74" stroke-width="9" stroke-linecap="round" fill="none"/>
+    <path d="M42 64 L62 84 L74 74" stroke="#FDBA74" stroke-width="9" stroke-linecap="round" fill="none"/>
+    <!-- Head & Hair -->
+    <circle cx="33" cy="30" r="18" fill="#FDBA74"/>
+    <path d="M16 26 Q24 8 46 16 Q52 24 48 32 Q36 22 16 26 Z" fill="#1E1B4B"/>
+    <circle cx="39" cy="29" r="2.2" fill="#1E1B4B"/>
+    <path d="M35 37 Q40 40 44 36" stroke="#9A3412" stroke-width="2" stroke-linecap="round" fill="none"/>
+  </g>
+</svg>

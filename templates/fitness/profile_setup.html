@@ -1,0 +1,135 @@
+{% extends "base_app.html" %}
+
+{% block title %}Profile Setup | FitTrack{% endblock %}
+{% block topbar_title %}Personalize Your Adventure{% endblock %}
+{% block topbar_subtitle %}Choose your FitBuddy companion and tailor recommendations to your routine{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9 col-xl-8">
+    <div class="surface-card p-4 p-lg-5">
+      <div class="meta-line mb-2">
+        <span class="meta-accent">Onboarding</span>
+        <span aria-hidden="true">&middot;</span>
+        <span>Profile &amp; FitBuddy Setup</span>
+      </div>
+      <h1 class="h3 fw-bold mb-2">Customize your FitTrack profile &amp; companion</h1>
+      <p class="text-secondary mb-4">
+        Pick your preferred FitBuddy character and share your fitness goals so your dashboard, challenges, and recommendations feel made for you.
+      </p>
+
+      <form method="post" action="{% url 'fitness:profile_setup' %}" novalidate>
+        {% csrf_token %}
+
+        <!-- Companion Selection -->
+        <div class="mb-4">
+          <label class="form-label fw-bold small d-block mb-2">
+            {{ form.companion_choice.label }}
+          </label>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="d-block w-100 m-0">
+                <input
+                  type="radio"
+                  name="companion_choice"
+                  value="female"
+                  class="companion-radio-input visually-hidden"
+                  {% if form.companion_choice.value == 'female' or not form.companion_choice.value %}checked{% endif %}
+                />
+                <div class="companion-option-card d-flex align-items-center gap-3">
+                  {% include "partials/fitbuddy_svg.html" with buddy_gender="female" buddy_state="greeting" buddy_size="66px" %}
+                  <div>
+                    <div class="fw-bold text-ink-bright">Nova (Female Buddy)</div>
+                    <div class="small text-ink-muted">Upbeat coach who waves, cheers, and celebrates every jar filled.</div>
+                  </div>
+                </div>
+              </label>
+            </div>
+            <div class="col-sm-6">
+              <label class="d-block w-100 m-0">
+                <input
+                  type="radio"
+                  name="companion_choice"
+                  value="male"
+                  class="companion-radio-input visually-hidden"
+                  {% if form.companion_choice.value == 'male' %}checked{% endif %}
+                />
+                <div class="companion-option-card d-flex align-items-center gap-3">
+                  {% include "partials/fitbuddy_svg.html" with buddy_gender="male" buddy_state="encouragement" buddy_size="66px" %}
+                  <div>
+                    <div class="fw-bold text-ink-bright">Atlas (Male Buddy)</div>
+                    <div class="small text-ink-muted">Friendly trainer who keeps your streak energy steady every day.</div>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-sm-6">
+            <label for="{{ form.age.id_for_label }}" class="form-label fw-semibold small">
+              {{ form.age.label }}
+            </label>
+            {{ form.age }}
+            {% if form.age.errors %}
+            <div class="text-danger small mt-1">{{ form.age.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-sm-6">
+            <label for="{{ form.gender.id_for_label }}" class="form-label fw-semibold small">
+              {{ form.gender.label }}
+            </label>
+            {{ form.gender }}
+            {% if form.gender.errors %}
+            <div class="text-danger small mt-1">{{ form.gender.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <label for="{{ form.fitness_level.id_for_label }}" class="form-label fw-semibold small">
+              {{ form.fitness_level.label }} <span class="text-danger">*</span>
+            </label>
+            {{ form.fitness_level }}
+            {% if form.fitness_level.errors %}
+            <div class="text-danger small mt-1">{{ form.fitness_level.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-4">
+            <label for="{{ form.primary_goal.id_for_label }}" class="form-label fw-semibold small">
+              {{ form.primary_goal.label }} <span class="text-danger">*</span>
+            </label>
+            {{ form.primary_goal }}
+            {% if form.primary_goal.errors %}
+            <div class="text-danger small mt-1">{{ form.primary_goal.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-4">
+            <label for="{{ form.preferred_environment.id_for_label }}" class="form-label fw-semibold small">
+              {{ form.preferred_environment.label }} <span class="text-danger">*</span>
+            </label>
+            {{ form.preferred_environment }}
+            {% if form.preferred_environment.errors %}
+            <div class="text-danger small mt-1">{{ form.preferred_environment.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2">
+          <a href="{% url 'fitness:dashboard' %}" class="btn btn-outline-navy">
+            Skip for Now
+          </a>
+          <button type="submit" class="btn btn-purple px-4">
+            Save &amp; Enter Fitness World <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

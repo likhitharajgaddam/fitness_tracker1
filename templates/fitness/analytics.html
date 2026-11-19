@@ -1,0 +1,224 @@
+{% extends "base_app.html" %}
+
+{% block title %}My Fitness Journey | FitTrack{% endblock %}
+{% block topbar_title %}My Fitness Journey{% endblock %}
+{% block topbar_subtitle %}Real-time trends, streak history, completed goal jars, and milestone timeline{% endblock %}
+
+{% block content %}
+<!-- Header & Period Filter -->
+<section class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <div>
+    <div class="meta-line mb-1">
+      <span class="meta-accent">Progress &amp; Analytics</span>
+      <span aria-hidden="true">&middot;</span>
+      <span>{{ period_label }}</span>
+    </div>
+    <h1 class="h3 fw-bold mb-0">My Fitness Journey &amp; Trends</h1>
+  </div>
+
+  <div class="filter-bar">
+    <a href="?period=7d" class="filter-tab {% if period == '7d' %}active{% endif %}">Last 7 Days</a>
+    <a href="?period=30d" class="filter-tab {% if period == '30d' %}active{% endif %}">Last 30 Days</a>
+    <a href="?period=90d" class="filter-tab {% if period == '90d' %}active{% endif %}">Last 90 Days</a>
+    <a href="?period=all" class="filter-tab {% if period == 'all' %}active{% endif %}">All Time</a>
+  </div>
+</section>
+
+<!-- KPI Cards -->
+<section class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="surface-card p-4 h-100">
+      <div class="kpi-label mb-1">Total Workouts ({{ period_label }})</div>
+      <div class="kpi-value tabular-num" data-countup="{{ total_workouts }}">{{ total_workouts }}</div>
+      <div class="small text-secondary mt-1">Average <span class="tabular-num">{{ avg_duration }} min</span> / session</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="surface-card p-4 h-100">
+      <div class="kpi-label mb-1">Total Workout Minutes</div>
+      <div class="kpi-value tabular-num" style="color: var(--mint-600);" data-countup="{{ total_minutes }}">{{ total_minutes }}</div>
+      <div class="small text-secondary mt-1">Logged in selected window</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="surface-card p-4 h-100">
+      <div class="kpi-label mb-1">Most Frequent Activity</div>
+      <div class="h4 fw-bold text-ink-bright mb-1 text-truncate">{{ most_frequent_activity }}</div>
+      <div class="small text-secondary tabular-num">{{ most_frequent_count }} sessions logged</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="surface-card p-4 h-100">
+      <div class="kpi-label mb-1">Goal Completion Rate</div>
+      <div class="kpi-value tabular-num" style="color: var(--purple-700);" data-countup="{{ goal_completion_rate }}">{{ goal_completion_rate }}</div>
+      <div class="small text-secondary mt-1 tabular-num">{{ completed_goals }} of {{ total_goals }} goals achieved ({{ goal_completion_rate }}%)</div>
+    </div>
+  </div>
+</section>
+
+<!-- Streak History & Completed Goals -->
+<section class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="surface-tint-lavender p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="h5 fw-bold mb-0">Streak History</h2>
+          <p class="small text-secondary mb-0">Your active day momentum</p>
+        </div>
+        <span class="icon-tile-peach" aria-hidden="true"><i class="bi bi-fire"></i></span>
+      </div>
+      <div class="row g-3 mb-3">
+        <div class="col-4">
+          <div class="surface-card p-3 text-center">
+            <div class="h3 fw-bold tabular-num text-track-red mb-0">{{ streak_info.current_streak }}</div>
+            <div class="small text-ink-muted">Current</div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="surface-card p-3 text-center">
+            <div class="h3 fw-bold tabular-num text-lime mb-0">{{ streak_info.best_streak }}</div>
+            <div class="small text-ink-muted">Best</div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="surface-card p-3 text-center">
+            <div class="h3 fw-bold tabular-num mb-0" style="color: var(--mint-500);">{{ streak_info.total_active_days }}</div>
+            <div class="small text-ink-muted">Active Days</div>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-between gap-1">
+        {% for day in streak_info.recent_7_days %}
+        <div class="text-center flex-grow-1 p-2 streak-pill-cell {% if day.active %}active{% endif %}">
+          <div class="small fw-bold text-ink-bright">{{ day.label }}</div>
+          <div class="small {% if day.active %}text-lime{% else %}text-ink-muted{% endif %}">
+            {% if day.active %}<i class="bi bi-check-circle-fill" aria-hidden="true"></i>{% else %}&mdash;{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="surface-card p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="h5 fw-bold mb-0">Goal Completion History</h2>
+          <p class="small text-secondary mb-0">Reward jars you have already filled</p>
+        </div>
+        <a href="{% url 'fitness:rewards' %}" class="btn btn-outline-navy btn-sm">All Rewards</a>
+      </div>
+      {% if completed_goal_items %}
+      <div class="d-flex flex-column gap-2">
+        {% for item in completed_goal_items|slice:":4" %}
+        <div class="p-3 rounded-4 surface-tint-mint d-flex justify-content-between align-items-center gap-2">
+          <div>
+            <div class="fw-bold small text-ink-bright">{{ item.goal.title }}</div>
+            <div class="small text-ink-muted">{{ item.goal.get_reward_container_display }} &middot; {{ item.goal.reward_badge_title }}</div>
+          </div>
+          <span class="tabular-num fw-bold small text-lime">{{ item.completed_value }} / {{ item.target_value }} {{ item.unit_label }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center py-4">
+        <p class="small text-secondary mb-3">Complete your active Reward Jar to record your first goal completion milestone here.</p>
+        <a href="{% url 'fitness:goals' %}" class="btn btn-purple btn-sm">Open Reward Jars</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Charts Grid -->
+<section class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="surface-card p-4 h-100">
+      <h2 class="h5 fw-bold mb-1">Weekly Workout Duration</h2>
+      <p class="small text-secondary mb-3">Total active minutes per week</p>
+      <div class="chart-box">
+        <canvas id="analyticsWeeklyChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="surface-card p-4 h-100">
+      <h2 class="h5 fw-bold mb-1">Monthly Workout Duration</h2>
+      <p class="small text-secondary mb-3">Cumulative monthly minutes over the last 6 months</p>
+      <div class="chart-box">
+        <canvas id="analyticsMonthlyChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="surface-card p-4 h-100">
+      <h2 class="h5 fw-bold mb-1">Activity Distribution</h2>
+      <p class="small text-secondary mb-3">Share of total minutes by exercise or sport ({{ period_label }})</p>
+      {% if has_workouts %}
+      <div class="chart-box">
+        <canvas id="analyticsDistributionChart"></canvas>
+      </div>
+      {% else %}
+      <div class="text-center py-5">
+        <p class="small text-secondary mb-3">Log workouts in this period to view your activity distribution breakdown.</p>
+        <a href="{% url 'fitness:workouts' %}#log-workout-form" class="btn btn-emerald btn-sm">Log Workout</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="surface-card p-4 h-100">
+      <h2 class="h5 fw-bold mb-1">Workout Frequency</h2>
+      <p class="small text-secondary mb-3">Number of completed workout sessions per week</p>
+      <div class="chart-box">
+        <canvas id="analyticsFrequencyChart"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- My Fitness Journey Milestone Timeline -->
+<section class="surface-card p-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="h5 fw-bold mb-0">Milestone Timeline</h2>
+      <p class="small text-secondary mb-0">Your real chronological achievements and training highlights</p>
+    </div>
+    <span class="small fw-semibold" style="color: var(--purple-700);">Level {{ achievements_summary.adventurer_level }}</span>
+  </div>
+
+  {% if journey_milestones %}
+  <div class="journey-timeline">
+    {% for m in journey_milestones %}
+    <div class="journey-node">
+      <span class="journey-node-dot" aria-hidden="true"></span>
+      <div class="p-3 surface-list-item d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+        <div class="d-flex align-items-center gap-3">
+          <span class="icon-tile-purple" aria-hidden="true"><i class="bi {{ m.icon }}"></i></span>
+          <div>
+            <div class="fw-bold small text-ink-bright">{{ m.title }}</div>
+            <div class="small text-ink-muted">{{ m.detail }}</div>
+          </div>
+        </div>
+        <span class="small text-ink-muted tabular-num">{{ m.date|date:"M d, Y" }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="small text-secondary mb-0">Log your first workout to start building your Milestone Timeline!</p>
+  {% endif %}
+</section>
+
+<script id="analytics-weekly-labels" type="application/json">{{ weekly_labels_json|safe }}</script>
+<script id="analytics-weekly-duration" type="application/json">{{ weekly_duration_json|safe }}</script>
+<script id="analytics-weekly-frequency" type="application/json">{{ weekly_frequency_json|safe }}</script>
+<script id="analytics-month-labels" type="application/json">{{ month_labels_json|safe }}</script>
+<script id="analytics-month-values" type="application/json">{{ month_values_json|safe }}</script>
+<script id="analytics-dist-labels" type="application/json">{{ dist_labels_json|safe }}</script>
+<script id="analytics-dist-values" type="application/json">{{ dist_values_json|safe }}</script>
+{% endblock %}

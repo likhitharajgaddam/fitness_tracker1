@@ -1,0 +1,196 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}{{ activity.name }} | Fitness Activities | FitTrack{% endblock %}
+{% block topbar_title %}{{ activity.name }}{% endblock %}
+{% block topbar_subtitle %}{{ activity.category }} &middot; {{ activity.difficulty_level }} &middot; {{ activity.estimated_duration }} min{% endblock %}
+
+{% block content %}
+<div class="{% if not request.user.is_authenticated %}container-xl py-4 py-lg-5{% endif %}">
+  <div class="mb-3">
+    <a href="{% url 'fitness:activities' %}" class="text-decoration-none small fw-semibold text-secondary">
+      <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Back to Fitness Activities
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="surface-card p-4 p-lg-5">
+        <div class="detail-hero-img-wrap mb-4">
+          <img src="{% static activity.image_path %}" alt="{{ activity.name }}" class="detail-hero-img" />
+        </div>
+
+        <div class="meta-line mb-2">
+          <span class="meta-accent">{{ activity.category }}</span>
+          <span aria-hidden="true">&middot;</span>
+          <span>{{ activity.difficulty_level }} Level</span>
+          <span aria-hidden="true">&middot;</span>
+          <span>{{ activity.environment }}</span>
+          {% if activity.target_muscles %}
+          <span aria-hidden="true">&middot;</span>
+          <span class="meta-mint">{{ activity.target_muscles }}</span>
+          {% endif %}
+        </div>
+
+        <h1 class="h2 fw-bold mb-3">{{ activity.name }}</h1>
+        <p class="text-secondary mb-4">{{ activity.description }}</p>
+
+        {% if activity.benefits %}
+        <div class="surface-tint-mint p-3 p-md-4 mb-4">
+          <h2 class="h5 fw-bold text-ink-bright mb-2">
+            <i class="bi bi-heart-pulse text-lime me-2" aria-hidden="true"></i>Fitness Benefits
+          </h2>
+          <p class="small text-ink-body mb-0">{{ activity.benefits }}</p>
+        </div>
+        {% endif %}
+
+        {% if activity.instruction_steps %}
+        <div>
+          <h2 class="h4 fw-bold mb-3">Step-by-Step Guide</h2>
+          <div class="d-flex flex-column gap-2">
+            {% for step in activity.instruction_steps %}
+            <div class="p-3 surface-step-item small d-flex align-items-start gap-2">
+              <span class="fw-bold tabular-num text-lime">{{ forloop.counter }}.</span>
+              <span>{{ step }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <!-- Interactive Workout Session Timer -->
+      <div class="surface-card p-4 mb-4" id="guidedWorkoutTimerCard" data-recommended-minutes="{{ activity.estimated_duration }}">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div class="meta-line">
+              <span class="meta-accent">Interactive Session</span>
+            </div>
+            <h2 class="h5 fw-bold mb-0">Workout Timer</h2>
+          </div>
+          {% if profile %}
+          {% include "partials/fitbuddy_svg.html" with buddy_gender=profile.companion_choice buddy_state="workout" buddy_size="44px" extra_class="timer-fitbuddy-svg" %}
+          {% endif %}
+        </div>
+
+        <div class="timer-ring mb-3" id="timerRingVisual">
+          <div class="timer-ring-inner">
+            <div class="h3 fw-bold tabular-num mb-0" id="timerDisplay">{{ activity.estimated_duration|stringformat:"02d" }}:00</div>
+            <div class="small text-secondary" id="timerStatusText">Ready</div>
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+          <button type="button" class="btn btn-purple btn-sm px-3" id="timerStartBtn">
+            <i class="bi bi-play-fill me-1" aria-hidden="true"></i>Start
+          </button>
+          <button type="button" class="btn btn-outline-navy btn-sm d-none" id="timerPauseBtn">
+            <i class="bi bi-pause-fill me-1" aria-hidden="true"></i>Pause
+          </button>
+          <button type="button" class="btn btn-outline-navy btn-sm d-none" id="timerResumeBtn">
+            <i class="bi bi-play-fill me-1" aria-hidden="true"></i>Resume
+          </button>
+          <button type="button" class="btn btn-outline-navy btn-sm" id="timerResetBtn">
+            Reset
+          </button>
+        </div>
+
+        {% if request.user.is_authenticated %}
+        <form
+          method="post"
+          action="{% url 'fitness:log_activity_session' activity.pk %}"
+          id="activityTimerFinishForm"
+          class="border-top pt-3"
+        >
+          {% csrf_token %}
+          <label for="timerDurationInput" class="form-label small fw-semibold text-secondary mb-1">
+            Minutes to Save
+          </label>
+          <div class="input-group input-group-sm mb-2">
+            <input
+              type="number"
+              name="duration"
+              id="timerDurationInput"
+              class="form-control tabular-num"
+              min="1"
+              max="720"
+              value="{{ activity.estimated_duration }}"
+              required
+            />
+            <span class="input-group-text">min</span>
+          </div>
+          <input
+            type="text"
+            name="notes"
+            id="timerNotesInput"
+            class="form-control form-control-sm mb-2"
+            placeholder="Optional session note..."
+          />
+          <button type="submit" class="btn btn-emerald w-100" id="timerFinishBtn">
+            <i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Finish &amp; Save Workout
+          </button>
+        </form>
+        {% else %}
+        <a href="{% url 'fitness:signup' %}" class="btn btn-emerald w-100 mt-2">
+          Sign Up to Save Timed Session
+        </a>
+        {% endif %}
+      </div>
+
+      <div class="surface-card p-4 mb-4">
+        <h2 class="h5 fw-bold mb-3">Session Overview</h2>
+        <div class="d-flex flex-column gap-2 small mb-3">
+          <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-25">
+            <span class="text-ink-muted">Recommended Duration</span>
+            <strong class="tabular-num text-lime">{{ activity.estimated_duration }} min</strong>
+          </div>
+          <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-25">
+            <span class="text-ink-muted">Estimated Energy Burn</span>
+            <strong class="tabular-num text-ink-bright">~{{ activity.calories_burn }} kcal</strong>
+          </div>
+          {% if activity.target_muscles %}
+          <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-25 gap-2">
+            <span class="text-ink-muted">Target Muscles</span>
+            <strong class="text-ink-bright text-end">{{ activity.target_muscles }}</strong>
+          </div>
+          {% endif %}
+          <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-25">
+            <span class="text-ink-muted">Difficulty</span>
+            <strong class="text-ink-bright">{{ activity.difficulty_level }}</strong>
+          </div>
+          <div class="d-flex justify-content-between py-2">
+            <span class="text-ink-muted">Environment</span>
+            <strong class="text-ink-bright">{{ activity.environment }}</strong>
+          </div>
+        </div>
+
+        <a
+          href="{% url 'fitness:workouts' %}?log_activity={{ activity.name|urlencode }}&amp;duration={{ activity.estimated_duration }}#log-workout-form"
+          class="btn btn-outline-navy w-100 btn-sm"
+        >
+          Open Full Workout Form
+        </a>
+      </div>
+
+      {% if related_activities %}
+      <div class="surface-card p-4">
+        <h2 class="h5 fw-bold mb-3">More {{ activity.category }} Activities</h2>
+        <div class="d-flex flex-column gap-2">
+          {% for rel in related_activities %}
+          <a
+            href="{% url 'fitness:activity_detail' rel.pk %}"
+            class="d-flex justify-content-between align-items-center p-2 surface-list-item text-decoration-none"
+          >
+            <span class="fw-semibold small">{{ rel.name }}</span>
+            <span class="small text-lime tabular-num">{{ rel.estimated_duration }} min</span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

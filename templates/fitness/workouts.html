@@ -1,0 +1,293 @@
+{% extends "base_app.html" %}
+{% load static %}
+
+{% block title %}Workout Tracker | FitTrack{% endblock %}
+{% block topbar_title %}Workout Tracker{% endblock %}
+{% block topbar_subtitle %}Every logged session fills your Reward Jars and grows your Fitness Journey{% endblock %}
+
+{% block content %}
+<!-- Summary Strip -->
+<section class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="surface-card p-3 p-md-4 h-100">
+      <div class="d-flex justify-content-between align-items-start mb-1">
+        <span class="kpi-label">Total Sessions</span>
+        <span class="icon-tile-purple" aria-hidden="true"><i class="bi bi-journal-check"></i></span>
+      </div>
+      <div class="kpi-value tabular-num" data-countup="{{ total_workouts }}">{{ total_workouts }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="surface-card p-3 p-md-4 h-100">
+      <div class="d-flex justify-content-between align-items-start mb-1">
+        <span class="kpi-label">Cumulative Minutes</span>
+        <span class="icon-tile" aria-hidden="true"><i class="bi bi-stopwatch"></i></span>
+      </div>
+      <div class="kpi-value tabular-num" style="color: var(--mint-600);" data-countup="{{ total_minutes }}">{{ total_minutes }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="surface-card p-3 p-md-4 h-100">
+      <div class="d-flex justify-content-between align-items-start mb-1">
+        <span class="kpi-label">Logged Today</span>
+        <span class="icon-tile-peach" aria-hidden="true"><i class="bi bi-sun"></i></span>
+      </div>
+      <div class="kpi-value tabular-num" data-countup="{{ today_minutes }}">{{ today_minutes }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="surface-card p-3 p-md-4 h-100">
+      <div class="d-flex justify-content-between align-items-start mb-1">
+        <span class="kpi-label">Average Session</span>
+        <span class="icon-tile-sky" aria-hidden="true"><i class="bi bi-bar-chart"></i></span>
+      </div>
+      <div class="kpi-value tabular-num" data-countup="{{ avg_duration }}">{{ avg_duration }}</div>
+    </div>
+  </div>
+</section>
+
+<div class="row g-4">
+  <!-- Add Workout Form -->
+  <div class="col-lg-5" id="log-workout-form">
+    <div class="surface-card p-4">
+      <div class="meta-line mb-1">
+        <span class="meta-accent">Log Activity</span>
+        <span aria-hidden="true">&middot;</span>
+        <span>Updates Jars &amp; Badges</span>
+      </div>
+      <h1 class="h5 fw-bold mb-1">Log Completed Workout</h1>
+      <p class="small text-secondary mb-3">
+        Saving a workout immediately updates your Reward Jars, streak, achievements, and weekly chart.
+      </p>
+
+      {% if quick_activities or quick_sports %}
+      <div class="mb-3">
+        <div class="small fw-semibold text-secondary mb-2">Quick Fill</div>
+        <div class="d-flex flex-wrap gap-1">
+          {% for item in quick_activities %}
+          <button
+            type="button"
+            class="quick-chip"
+            data-quick-activity="{{ item.name }}"
+            data-quick-duration="{{ item.estimated_duration }}"
+          >
+            {{ item.name }} <span class="tabular-num text-secondary">{{ item.estimated_duration }}m</span>
+          </button>
+          {% endfor %}
+          {% for sport in quick_sports %}
+          <button
+            type="button"
+            class="quick-chip"
+            data-quick-activity="{{ sport.name }}"
+            data-quick-duration="{{ sport.recommended_duration }}"
+          >
+            {{ sport.name }} <span class="tabular-num text-secondary">{{ sport.recommended_duration }}m</span>
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <form method="post" action="{% url 'fitness:workouts' %}" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger py-2 small" role="alert">
+          {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <div class="mb-3">
+          <label for="{{ form.activity_name.id_for_label }}" class="form-label fw-semibold small">
+            {{ form.activity_name.label }} <span class="text-danger">*</span>
+          </label>
+          {{ form.activity_name }}
+          <datalist id="activity-suggestions-list">
+            {% for suggestion in all_suggestions %}
+            <option value="{{ suggestion }}"></option>
+            {% endfor %}
+          </datalist>
+          {% if form.activity_name.errors %}
+          <div class="text-danger small mt-1">{{ form.activity_name.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-sm-6">
+            <label for="{{ form.duration.id_for_label }}" class="form-label fw-semibold small">
+              {{ form.duration.label }} <span class="text-danger">*</span>
+            </label>
+            {{ form.duration }}
+            {% if form.duration.errors %}
+            <div class="text-danger small mt-1">{{ form.duration.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="col-sm-6">
+            <label for="{{ form.date.id_for_label }}" class="form-label fw-semibold small">
+              {{ form.date.label }} <span class="text-danger">*</span>
+            </label>
+            {{ form.date }}
+            {% if form.date.errors %}
+            <div class="text-danger small mt-1">{{ form.date.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="{{ form.notes.id_for_label }}" class="form-label fw-semibold small">
+            {{ form.notes.label }}
+          </label>
+          {{ form.notes }}
+          {% if form.notes.errors %}
+          <div class="text-danger small mt-1">{{ form.notes.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-emerald w-100">
+          <i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Save Workout
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Workout History & Filters -->
+  <div class="col-lg-7">
+    <div class="surface-card p-4 h-100">
+      <div class="mb-3">
+        <h2 class="h5 fw-bold mb-1">Workout History</h2>
+        <p class="small text-secondary mb-3">Search or filter your personal workouts by activity or date range</p>
+
+        <form method="get" action="{% url 'fitness:workouts' %}" class="row g-2 align-items-end">
+          <div class="col-sm-4">
+            <label for="searchWorkoutInput" class="form-label small text-secondary mb-1">Keyword</label>
+            <input
+              type="search"
+              name="q"
+              id="searchWorkoutInput"
+              class="form-control form-control-sm"
+              placeholder="Search notes/activity..."
+              value="{{ search_query }}"
+            />
+          </div>
+          <div class="col-sm-3">
+            <label for="filterActivitySelect" class="form-label small text-secondary mb-1">Activity</label>
+            <select name="filter_activity" id="filterActivitySelect" class="form-select form-select-sm">
+              <option value="">All Activities</option>
+              {% for name in logged_activity_names %}
+              <option value="{{ name }}" {% if filter_activity == name %}selected{% endif %}>{{ name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-6 col-sm-2">
+            <label for="dateFromInput" class="form-label small text-secondary mb-1">From</label>
+            <input type="date" name="date_from" id="dateFromInput" class="form-control form-control-sm" value="{{ date_from }}" />
+          </div>
+          <div class="col-6 col-sm-3">
+            <div class="d-flex gap-1">
+              <div class="flex-grow-1">
+                <label for="dateToInput" class="form-label small text-secondary mb-1">To</label>
+                <input type="date" name="date_to" id="dateToInput" class="form-control form-control-sm" value="{{ date_to }}" />
+              </div>
+              <button type="submit" class="btn btn-navy btn-sm align-self-end" aria-label="Apply filters">
+                <i class="bi bi-funnel" aria-hidden="true"></i>
+              </button>
+              {% if search_query or filter_activity or date_from or date_to %}
+              <a href="{% url 'fitness:workouts' %}" class="btn btn-outline-navy btn-sm align-self-end" title="Clear filters">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </form>
+      </div>
+
+      {% if workout_rows %}
+      <div class="table-responsive">
+        <table class="table workout-table mb-0">
+          <thead>
+            <tr>
+              <th>Activity &amp; Notes</th>
+              <th>Date</th>
+              <th class="text-end">Duration</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in workout_rows %}
+            {% with workout=row.workout %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  {% if row.image_path %}
+                  <img src="{% static row.image_path %}" alt="{{ workout.activity_name }}" class="workout-thumb" />
+                  {% else %}
+                  <span class="icon-tile-purple" style="width: 44px; height: 34px; border-radius: 9px;" aria-hidden="true">
+                    <i class="bi {{ row.icon_name }}"></i>
+                  </span>
+                  {% endif %}
+                  <div class="min-w-0">
+                    <div class="fw-semibold text-ink-bright">
+                      {{ workout.activity_name }}
+                      {% if workout.source == 'timer' %}
+                      <span class="small fw-semibold ms-1 text-lime">&middot; Timed</span>
+                      {% elif workout.source == 'challenge' %}
+                      <span class="small fw-semibold ms-1 text-track-red">&middot; Challenge</span>
+                      {% endif %}
+                    </div>
+                    {% if workout.notes %}
+                    <div class="small text-secondary">{{ workout.notes }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+              </td>
+              <td class="text-secondary small tabular-num text-nowrap">
+                {{ workout.date|date:"M d, Y" }}
+              </td>
+              <td class="text-end tabular-num fw-bold text-nowrap" style="color: var(--mint-600);">
+                {{ workout.duration }} min
+              </td>
+              <td class="text-end text-nowrap">
+                <a
+                  href="{% url 'fitness:edit_workout' workout.pk %}"
+                  class="btn btn-sm btn-outline-navy me-1"
+                  aria-label="Edit {{ workout.activity_name }}"
+                >
+                  <i class="bi bi-pencil" aria-hidden="true"></i>
+                </a>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger"
+                  data-bs-toggle="modal"
+                  data-bs-target="#confirmDeleteModal"
+                  data-delete-url="{% url 'fitness:delete_workout' workout.pk %}"
+                  data-delete-name="{{ workout.activity_name }} ({{ workout.duration }} min)"
+                  aria-label="Delete {{ workout.activity_name }}"
+                >
+                  <i class="bi bi-trash" aria-hidden="true"></i>
+                </button>
+              </td>
+            </tr>
+            {% endwith %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5">
+        <i class="bi bi-journal-x fs-1 text-secondary mb-3 d-block" aria-hidden="true"></i>
+        <h3 class="h6 fw-bold mb-1">
+          {% if search_query or filter_activity or date_from or date_to %}No matching workout records{% else %}No workouts recorded yet{% endif %}
+        </h3>
+        <p class="small text-secondary mb-0">
+          {% if search_query or filter_activity or date_from or date_to %}
+            Try clearing your search or date range filters.
+          {% else %}
+            Use the form on the left to log your first completed workout.
+          {% endif %}
+        </p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
